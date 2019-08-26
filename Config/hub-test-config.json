@@ -1,0 +1,17 @@
+{
+    "hub-id" : "tremium-hub-dev-01",
+    "gcp_project_id" : "tremium",
+    "update_subscription_name" : "dev-hub-listener",
+    "update_topic_name" : "image-updates",
+    "node-container-image-pattern" : ".+dev-node-.+", 
+    "node-update-check-delay" : 15, 
+    "docker-socket-path" : "unix://var/run/docker.sock", 
+    "image-archive-dir" : "./image-archives",
+    "file-transfer-dir" : "./file-transfer",
+    "update-manager-log-name" : "update-manager-logs.log",
+    "bluetooth-server-log-name" : "bluetooth-interface-logs.log",
+    "bluetooth-adapter-mac" : "30:3A:64:5E:86:D3",
+    "bluetooth-test-adapter-mac" : "",
+    "bluetooth-port" : 50001,
+    "bluetooth-message-max-size" : 1024
+}

@@ -1,0 +1,40 @@
+Steps to push to registry : 
+
+    1) cat TremiumDevEditor.json | sudo docker login -u _json_key --password-stdin https://gcr.io
+    
+    2) sudo docker tag quickstart-image gcr.io/tremium/quickstart-image:tag1
+
+    3) sudo docker push gcr.io/tremium/quickstart-image:tag1
+
+
+Properly launching ouroboros : 
+
+    docker run -d --name ouroboros \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      pyouroboros/ouroboros
+
+
+Set proper GCP credentials 
+
+    export GOOGLE_APPLICATION_CREDENTIALS=./Config/TremiumDevViewer.json
+
+
+
+Docker image naming convention : 
+
+    (organisation)_(device type)_(description)
+
+        - (organisation) :  name of the client organisation
+        - (device type) :  node or hub
+        - (description) :  role + id
+
+        ex : dev-node-car01
+
+
+
+To run docker commands from inside a Docker
+
+    --> make sure the login happens before the container is launched
+        and mounted
+
+    --> docker run -v /var/run/docker.sock:/var/run/docker.sock ...
