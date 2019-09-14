@@ -1,6 +1,6 @@
 Steps to push to registry : 
 
-    1) cat TremiumDevEditor.json | sudo docker login -u _json_key --password-stdin https://gcr.io
+    1) cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
     
     2) sudo docker tag quickstart-image gcr.io/tremium/quickstart-image:tag1
 
@@ -14,22 +14,31 @@ Properly launching ouroboros :
       pyouroboros/ouroboros
 
 
-Set proper GCP credentials 
-
-    export GOOGLE_APPLICATION_CREDENTIALS=./Config/TremiumDevViewer.json
-
-
-
 Docker image naming convention : 
 
-    (organisation)_(device type)_(description)
+    (organisation)_(device type)_(mounted machine)_(*index)_(component)
 
-        - (organisation) :  name of the client organisation
-        - (device type) :  node or hub
-        - (description) :  role + id
+        - (organisation) : name of the client organisation
+        - (device type) :  Tremium Node or Tremium Hub
+        - (mounted machine) :  type of machinerie the device is mounted on
+        - (index) : (optional) specific index of the Node device (this is for targeted updates)
+        - (component) : name of the software component 
 
-        ex : dev-node-car01
+        ex : dev_node_compressor_communication-component
 
+    *** in tar format : dev_node_compressor_communication-component.tar
+
+
+Docker (Node and Hub) ID naming convention : 
+
+    (organisation)_(device type)_(mounted machine)_(index)
+
+        - (organisation) : name of the client organisation
+        - (device type) :  Tremium Node or Tremium Hub
+        - (mounted machine) :  type of machinerie the device is mounted on
+        - (index) : number unique to the device in the organisation
+
+        ex : dev_node_compressor_5  
 
 
 To run docker commands from inside a Docker
@@ -38,3 +47,28 @@ To run docker commands from inside a Docker
         and mounted
 
     --> docker run -v /var/run/docker.sock:/var/run/docker.sock ...
+
+
+Bluetooth defined messages : 
+
+
+    CHECK_AVAILABLE_UPDATES (node id) : 
+        
+        - (node id) : id of the node requesting an update
+
+        * returns a list of available docker images (most recent for every component).
+        * its the nodes job to check if one of the returned images should be "loaded"
+
+
+    GET_UPDATE (image file name) : 
+
+        - (image file name) : name of the archive image file to transafer
+
+        * transfers the target file to the client (Tremium Node)
+
+
+    STORE_FILE (data file name) : 
+
+        - (file name) : name of the file to be transafered to hub storage 
+
+        * transafers the target file to the server (Tremium Hub)

@@ -17,6 +17,7 @@ import datetime
 
 import re
 import docker
+import gzip
 from google.cloud import pubsub_v1
 from tremium.config import HubConfigurationManager
 
@@ -32,7 +33,7 @@ if __name__ == "__main__" :
         config_manager = HubConfigurationManager(args.config_path)
 
         # setting up logging for the service
-        log_file_path = os.path.join(config_manager.config_data["file-transfer-dir"], 
+        log_file_path = os.path.join(config_manager.config_data["hub-file-transfer-dir"], 
                                      config_manager.config_data["update-manager-log-name"])
         logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')
         logging.getLogger().setLevel(logging.ERROR)
@@ -59,20 +60,30 @@ if __name__ == "__main__" :
                     pull_response = docker_client.pull(new_image_path)
                 
                     # cheking if image was properly pulled
-                    if "id" in pull_response : 
+                    if "id" in pull_response :
 
                         # loading the pulled image
                         new_image_data = docker_client.get_image(new_image_path)
 
-                        # saving the pulled image to disk
-                        archive_name = new_image_path.split("/")[-1].replace(":", "-") + ".tar"
-                        archive_path = os.path.join(config_manager.config_data["image-archive-dir"], archive_name)
-                        archive_f = open(archive_path, "wb")
-                        for chunk in new_image_data:
-                            archive_f.write(chunk)
-                        archive_f.close()
+                        # defining the path of the archived image
+                        time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                        archive_name = new_image_path.split("/")[-1].split(":")[0] + "_" + time_str + ".tar"
+                        archive_path = os.path.join(config_manager.config_data["hub-image-archive-dir"], archive_name)
 
-                        # removing the pulled image from docker
+                        # saving the pulled image to disk (.tar file)
+                        with open(archive_path, 'wb') as archive_f: 
+                            for chunk in new_image_data:
+                                archive_f.write(chunk)
+
+                        # compressing the archive file
+                        archive_f = open(archive_path, 'rb')
+                        with gzip.open(archive_path + ".gz", 'wb') as ziped_f:
+                            archive_data = archive_f.read()
+                            ziped_f.write(archive_data)
+                        archive_f.close()                       
+
+                        # clean up
+                        os.remove(archive_path)
                         docker_client.remove_image(new_image_path)
 
                 except Exception as e:

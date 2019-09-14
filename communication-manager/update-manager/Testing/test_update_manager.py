@@ -4,6 +4,7 @@ import unittest
 import subprocess
 import shutil
 
+import re
 import docker
 from google.cloud import pubsub_v1
 from tremium.config import HubConfigurationManager
@@ -28,13 +29,14 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         '''
 
         # defining test parameters and pulling configuration
-        image_output_folder = "image-archives"
-        log_folder = "file-transfer"
-        manager_script_path = os.path.join("..", "node_update_manager.py")
         config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
-        docker_build_dir = os.path.join(".", "dummy-app")
-        test_image_tag = "gcr.io/tremium/dev-node-test:latest"
         config_manager = HubConfigurationManager(config_file_path)
+        manager_script_path = os.path.join("..", "node_update_manager.py")
+        docker_build_dir = os.path.join(".", "dummy-app")
+        test_image_tag = "gcr.io/tremium/dev_node_test:latest"
+        image_output_folder = config_manager.config_data["hub-image-archive-dir"]
+        log_folder = config_manager.config_data["hub-file-transfer-dir"]
+        
 
         docker_client = docker.Client(base_url=config_manager.config_data["docker-socket-path"])
         pubsub_publisher = pubsub_v1.PublisherClient()
@@ -59,13 +61,13 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         update_manager_h = subprocess.Popen([sys.executable, manager_script_path, config_file_path, "--oneshot"])
         update_manager_h.wait()
 
-        # cheking if the updated image was downloaded
-        wanted_file_name = test_image_tag.split("/")[-1].replace(":", "-") + ".tar"
-        assert wanted_file_name == os.listdir(image_output_folder)[0]
+        # checking if the updated image was downloaded
+        file_name_pattern = test_image_tag.split("/")[-1].split(":")[0]
+        assert re.search(file_name_pattern, os.listdir(image_output_folder)[0]) is not None 
 
         # clean up
-        if os.path.exists(log_folder): shutil.rmtree(log_folder)
-        if os.path.exists(image_output_folder): shutil.rmtree(image_output_folder)
+        #if os.path.exists(log_folder): shutil.rmtree(log_folder)
+        #if os.path.exists(image_output_folder): shutil.rmtree(image_output_folder)
 
 
 if __name__ == '__main__':

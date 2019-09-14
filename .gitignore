@@ -1,7 +1,3 @@
-# sensitive information
-./Config/TremiumDevEditor.json
-./Config/TremiumDevViewer.json
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
