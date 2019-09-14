@@ -15,6 +15,7 @@ idna==2.8
 isort==4.3.21
 lazy-object-proxy==1.4.1
 mccabe==0.6.1
+mock==3.0.5
 pkg-resources==0.0.0
 protobuf==3.9.1
 pyasn1==0.4.6
@@ -24,7 +25,7 @@ pytz==2019.2
 requests==2.22.0
 rsa==4.0
 six==1.12.0
-tremium==1.0
+-e git+https://OneWizzardBoi@bitbucket.org/tremium/tremium-py.git@13f502f81cfdcb7edc12128ba8381f75a756255f#egg=tremium&subdirectory=tremium
 typed-ast==1.4.0
 urllib3==1.25.3
 websocket-client==0.56.0
