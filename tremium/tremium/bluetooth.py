@@ -1,6 +1,5 @@
 import os
 import os.path
-import signal
 
 import time
 import logging
@@ -303,3 +302,5 @@ def client_store_image_file(config_manager, server_s, file_name):
         time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
         logging.error("{0} - Node Bluetooth client failed while pulling file from server : {1}, {2}\
                       ".format(time_str, server_address, e))
+
+
