@@ -7,9 +7,7 @@ the "Communication Manager" container.
         - periodically transfer acquisition data 
 '''
 
-import sys
 import argparse
-
 from tremium.bluetooth import launch_hub_bluetooth_server
 
 # parsing script arguments

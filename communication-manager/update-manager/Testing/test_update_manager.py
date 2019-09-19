@@ -23,6 +23,7 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         '''
         Publishes a dummy image to the tremium image registry and sends and update message
         to the (node update manager).
+            *** this test needs an internet connection to run
             - ensure (node update manager) can consume pub/sub
             - ensure (node update manager) can pull new images
             - ensure (node update manager) can save new image to file
@@ -31,7 +32,7 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         # defining test parameters and pulling configuration
         config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
         config_manager = HubConfigurationManager(config_file_path)
-        manager_script_path = os.path.join("..", "node_update_manager.py")
+        manager_script_path = os.path.join("..", "update-manager.py")
         docker_build_dir = os.path.join(".", "dummy-app")
         test_image_tag = "gcr.io/tremium/dev_node_test:latest"
         image_output_folder = config_manager.config_data["hub-image-archive-dir"]
@@ -66,8 +67,8 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         assert re.search(file_name_pattern, os.listdir(image_output_folder)[0]) is not None 
 
         # clean up
-        #if os.path.exists(log_folder): shutil.rmtree(log_folder)
-        #if os.path.exists(image_output_folder): shutil.rmtree(image_output_folder)
+        if os.path.exists(log_folder): shutil.rmtree(log_folder)
+        if os.path.exists(image_output_folder): shutil.rmtree(image_output_folder)
 
 
 if __name__ == '__main__':
