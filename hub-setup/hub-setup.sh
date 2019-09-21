@@ -10,6 +10,10 @@
 # defining tremium hub user (taget for configuration)
 tremium_user="david"
 
+# defining necessary tremium paths
+tremium_main_dir="/home/david/Documents/Tremium"
+tremium_config_file="/home/david/Documents/Tremium/tremium-hub/Config/hub-test-config.json"
+
 # defining necessary docker parameters
 image_registry_host="https://gcr.io"
 registry_credentials_path="/home/david/Documents/Tremium/tremium-hub/Config/TremiumDevEditor.json"
@@ -43,7 +47,16 @@ chmod g+rwx "/home/$tremium_user/.docker" -R
 
 # defining environment variables for GCP
 echo -e "\nDefining environment variables for GCP in .bashrc... \n"
+echo "export GOOGLE_APPLICATION_CREDENTIALS=$registry_credentials_path" >> /home/"$tremium_user"/.profile
 echo "export GOOGLE_APPLICATION_CREDENTIALS=$registry_credentials_path" >> /home/"$tremium_user"/.bashrc
+
+# defining environment variables for tremium
+echo "export TREMIUM_MAIN_DIR=$tremium_main_dir" >> /home/"$tremium_user"/.profile
+echo "export TREMIUM_MAIN_DIR=$tremium_main_dir" >> /home/"$tremium_user"/.bashrc
+echo "export TREMIUM_CONFIG_FILE=$tremium_config_file" >> /home/"$tremium_user"/.profile
+echo "export TREMIUM_CONFIG_FILE=$tremium_config_file" >> /home/"$tremium_user"/.bashrc
+
+# applying .profile configurations
 source /home/"$tremium_user"/.bashrc
 
 echo -e "\nClose current shell window and login as the specified tremium user \n"

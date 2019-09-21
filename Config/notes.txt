@@ -72,3 +72,21 @@ Bluetooth defined messages :
         - (file name) : name of the file to be transafered to hub storage 
 
         * transafers the target file to the server (Tremium Hub)
+
+
+Tremium Hub Docker file : 
+
+    - a step to add the proper environment variables will have to be added
+
+        - google auth vars
+        - tremium main directory
+        - tremium config file path
+
+    - a step to create the cron job for the the data collector component will have to be
+      added.
+
+        ** run this step after defining the necessary environment variables
+
+        - cron job : 
+
+            --> 0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh

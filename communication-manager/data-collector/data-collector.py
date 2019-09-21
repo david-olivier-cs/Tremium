@@ -72,7 +72,6 @@ if __name__ == "__main__":
 
             # purging .log and timestamped files
             purge_timestamped_files(file_transfer_dir, config_manager)
-            delete_log_files(file_transfer_dir)
     
         # logging the error
         time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')

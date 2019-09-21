@@ -24,7 +24,7 @@ class TestDataCollectorIntegration(unittest.TestCase):
     config_manager = HubConfigurationManager(config_file_path)
     hub_transfer_dir = config_manager.config_data["hub-file-transfer-dir"]
 
-    def old_test_data_collection(self):
+    def test_data_collection(self):
 
         '''
         Test goals :
@@ -119,5 +119,4 @@ class TestDataCollectorIntegration(unittest.TestCase):
 
 
 if __name__ == "__main__":
-        
     unittest.main()
