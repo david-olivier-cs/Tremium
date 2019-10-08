@@ -11,7 +11,7 @@ import os.path
 import subprocess
 
 from tremium.config import HubConfigurationManager
-from tremium.bluetooth import client_store_image_file
+from tremium.bluetooth import NodeBluetoothClient
 from tremium.file_management import get_image_from_hub_archive
 
 
@@ -32,30 +32,6 @@ def mocked_listdir(path):
 def mocked_isfile(path):
     ''' mock implementation of the os.path.isfile function '''
     return True
-
-
-def create_server_connection(config_manager):
-
-    '''
-    Returns a socket connected to the bluetooth server defined in the config
-    config_manager (HubConfigurationManager) : holds configurations for the Tremium Hub
-    * make sure the server is launched before using this function
-    ''' 
-
-    # creating a client and connecting to server
-    server_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-    server_s.settimeout(10)
-    server_s.bind((config_manager.config_data["bluetooth-test-adapter-mac"],
-                    config_manager.config_data["bluetooth-port"]))
-    connection_status = server_s.connect_ex((config_manager.config_data["bluetooth-adapter-mac"],
-                                                config_manager.config_data["bluetooth-port"]))
-    
-    # making sure bluetooth connection was established
-    if not connection_status == 0:
-        server_s.close()
-        raise ValueError("Bluetooth client failed to connect to sever : {}".format(connection_status))
-
-    return server_s
 
 
 class UnitTestHubBluetoothServer(unittest.TestCase):
@@ -121,14 +97,11 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         # launching the bluetooth server as a process
         server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
         time.sleep(1)
-        server_s = create_server_connection(self.config_manager)
+        node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
         # calling the target functionality
-        server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(test_node_id), 'UTF-8'))
-        server_response_str = server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
-        
-        # connection clean up
-        server_s.close()
+        node_bluetooth_client.server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(test_node_id), 'UTF-8'))
+        server_response_str = node_bluetooth_client.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
         server_process_h.kill()
 
         # checking the server response 
@@ -147,14 +120,11 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         # launching the bluetooth server as a process
         server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
         time.sleep(1)
-        server_s = create_server_connection(self.config_manager)
+        node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
         # calling the target functionality
-        server_s.send(bytes("GET_UPDATE {}".format(target_image_file), 'UTF-8'))
-        client_store_image_file(self.config_manager, server_s, target_image_file)
-
-        # connection clean up
-        server_s.close()
+        node_bluetooth_client.server_s.send(bytes("GET_UPDATE {}".format(target_image_file), 'UTF-8'))
+        node_bluetooth_client.store_file(target_image_file)
         server_process_h.kill()
 
         # checking if the file was succesfully transfered
@@ -180,16 +150,13 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         # launching the bluetooth server as a process
         server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
         time.sleep(1)
-        server_s = create_server_connection(self.config_manager)
+        node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
         # calling the target functionality and sending the target file
-        server_s.send(bytes("STORE_FILE {}".format(target_image_file), 'UTF-8'))
+        node_bluetooth_client.server_s.send(bytes("STORE_FILE {}".format(target_image_file), 'UTF-8'))
         time.sleep(6)
         with open(target_image_path_node, "rb") as image_file_h:
-            server_s.sendfile(image_file_h)
-
-        # connection clean up
-        server_s.close()
+            node_bluetooth_client.server_s.sendfile(image_file_h)
         server_process_h.kill()
 
         # checking if the file was succesfully transfered
