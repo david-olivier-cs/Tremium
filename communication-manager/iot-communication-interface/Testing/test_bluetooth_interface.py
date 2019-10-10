@@ -81,11 +81,9 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
     '''
 
     # defining necessary test configurations
-    launcher_script_path = os.path.join("..", "bluetooth-interface.py")
     config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
     config_manager = HubConfigurationManager(config_file_path)
-
-
+            
     def test_check_available_updates(self):
 
         ''' Testing the "CHECK_AVAILABLE_UPDATES" functionality '''
@@ -94,17 +92,13 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         test_node_id = "dev-test_node_machine_5"
         expected_response = "dev-test_node_machine_5_acquisition-component_2019-09-07_13-57-19.tar.gz,dev-test_node_machine_monitoring-component_2019-06-04_13-57-19.tar.gz,dev-test_node_machine_5_cache-component_2017-09-01_13-57-19.tar.gz"
 
-        # launching the bluetooth server as a process
-        server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
+        # connecting to the bluetooth server
         time.sleep(1)
         node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
-        # calling the target functionality
+        # checking the target functionality
         node_bluetooth_client.server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(test_node_id), 'UTF-8'))
-        server_response_str = node_bluetooth_client.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
-        server_process_h.kill()
-
-        # checking the server response 
+        server_response_str = node_bluetooth_client.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8") 
         assert server_response_str == expected_response
 
 
@@ -117,15 +111,13 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         target_image_path_node = os.path.join(self.config_manager.config_data["node-image-archive-dir"], 
                                               target_image_file)
 
-        # launching the bluetooth server as a process
-        server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
+        # connecting to the bluetooth server
         time.sleep(1)
         node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
         # calling the target functionality
         node_bluetooth_client.server_s.send(bytes("GET_UPDATE {}".format(target_image_file), 'UTF-8'))
         node_bluetooth_client.store_file(target_image_file)
-        server_process_h.kill()
 
         # checking if the file was succesfully transfered
         target_file_check = False
@@ -147,8 +139,7 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         target_image_path_node = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], target_image_file)
         target_image_path_hub = os.path.join(self.config_manager.config_data["hub-file-transfer-dir"], target_image_file)
 
-        # launching the bluetooth server as a process
-        server_process_h = subprocess.Popen([sys.executable, self.launcher_script_path, self.config_file_path])
+        # connecting to the bluetooth server
         time.sleep(1)
         node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
 
@@ -157,7 +148,6 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         time.sleep(6)
         with open(target_image_path_node, "rb") as image_file_h:
             node_bluetooth_client.server_s.sendfile(image_file_h)
-        server_process_h.kill()
 
         # checking if the file was succesfully transfered
         target_file_check = False
@@ -171,4 +161,16 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
+    # defining Tremium Hub Bluetooth server params
+    launcher_script_path = os.path.join("..", "bluetooth-interface.py")
+    config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
+
+    # launching the Tremium Hub bluetooth server as a seperate process
+    server_process_h = subprocess.Popen([sys.executable, launcher_script_path, config_file_path])
+
+    # executing the unit tests
     unittest.main()
+
+    # killing the Bluetooth server
+    server_process_h.kill()

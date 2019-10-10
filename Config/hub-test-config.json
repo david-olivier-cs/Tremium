@@ -23,10 +23,9 @@
     "update-manager-log-name" : "update-manager-logs.log",
     "bluetooth-server-log-name" : "bluetooth-server-logs.log",
     "bluetooth-client-log-name" : "bluetooth-client-logs.log",
-    "bluetooth-adapter-mac-server" : "30:3A:64:5E:86:D3",
+    "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
     "bluetooth-adapter-mac-client" : "BC:14:EF:68:4D:DB",
-    "bluetooth-test-adapter-mac" : "BC:14:EF:68:4D:DB",
-    "bluetooth-port" : 5,
+    "bluetooth-port" : 25,
     "bluetooth-message-max-size" : 100000,
     "bluetooth-comm-timeout" : 10,
     "node-redis-server-config" : {
