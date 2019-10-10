@@ -48,7 +48,7 @@ class NodeBluetoothClient():
         # creating a connection to the hub bluetooth server
         self.server_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
         self.server_s.settimeout(self.config_manager.config_data["bluetooth-comm-timeout"])
-        self.server_s.bind((self.config_manager.config_data["bluetooth-adapter-mac-client"], 
+        self.server_s.bind((self.config_manager.config_data["bluetooth-adapter-mac-client"],
                             self.config_manager.config_data["bluetooth-port"]))
         connection_status = self.server_s.connect_ex((self.config_manager.config_data["bluetooth-adapter-mac-server"],
                                                       self.config_manager.config_data["bluetooth-port"]))
@@ -56,14 +56,14 @@ class NodeBluetoothClient():
         # handling server connection failure
         if not connection_status == 0:
             self.server_s.close()
-            error_str = "NodeBluetoothClient failed to connect to server"
+            error_str = "NodeBluetoothClient failed to connect to server, exit code : " + str(connection_status)
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.error("{0} - {1}".format(time_str, error_str))
             raise ValueError(error_str)      
 
 
     def __del__(self):
-            self.server_s.close()
+        self.server_s.close()
 
 
     def store_file(self, file_name):
@@ -243,6 +243,10 @@ class HubServerConnectionHandler():
         logging.getLogger().setLevel(logging.INFO)
 
 
+    def __del__(self):
+        self.client_s.close()
+
+
     def handle_connection(self):
 
         ''' Handles interactions with the client connection '''
@@ -418,7 +422,7 @@ def launch_hub_bluetooth_server(config_file_path):
     connection_handlers_h = []
 
     # creating socket to listen for new connections
-    try : 
+    try :
         listener_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
         listener_s.bind((config_manager.config_data["bluetooth-adapter-mac-server"], 
                         config_manager.config_data["bluetooth-port"]))
@@ -426,7 +430,7 @@ def launch_hub_bluetooth_server(config_file_path):
     
         bind_address = listener_s.getsockname()
         time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-        logging.info("{0} - Hub Bluetooth server listenning on address : {1}".format(time_str, bind_address))
+        logging.info("{0} - Hub Bluetooth server listening on address : {1}".format(time_str, bind_address))
 
     except Exception as e:
         time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
