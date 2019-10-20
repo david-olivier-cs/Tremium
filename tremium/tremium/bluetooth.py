@@ -13,7 +13,7 @@ import socket
 from multiprocessing import Process
 
 from .config import HubConfigurationManager, NodeConfigurationManager
-from .file_management import get_image_from_hub_archive
+from .file_management import get_image_from_hub_archive, get_matching_image
 from .cache import NodeCacheModel
 
 
@@ -29,10 +29,8 @@ class NodeBluetoothClient():
         config_file_path (str) : path to the hub configuration file
         '''
 
-        # loading tremium node configurations
+        # loading configurations and setting up logging
         self.config_manager = NodeConfigurationManager(config_file_path)
-
-        # setting up logging
         log_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], 
                                      self.config_manager.config_data["bluetooth-client-log-name"])
         logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')
@@ -45,74 +43,173 @@ class NodeBluetoothClient():
             logging.error("{0} - NodeBluetoothClient failed to connect to cache {1}".format(time_str, e))
             raise
 
-        # creating a connection to the hub bluetooth server
-        self.server_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-        self.server_s.settimeout(self.config_manager.config_data["bluetooth-comm-timeout"])
-        self.server_s.bind((self.config_manager.config_data["bluetooth-adapter-mac-client"],
-                            self.config_manager.config_data["bluetooth-port"]))
-        connection_status = self.server_s.connect_ex((self.config_manager.config_data["bluetooth-adapter-mac-server"],
-                                                      self.config_manager.config_data["bluetooth-port"]))
-
-        # handling server connection failure
-        if not connection_status == 0:
-            self.server_s.close()
-            error_str = "NodeBluetoothClient failed to connect to server, exit code : " + str(connection_status)
-            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.error("{0} - {1}".format(time_str, error_str))
-            raise ValueError(error_str)      
+        self.server_s = None
 
 
     def __del__(self):
-        self.server_s.close()
+
+        if self.server_s is not None:
+            self.server_s.close()
 
 
-    def store_file(self, file_name):
+    def _connect_to_server(self):
 
-        ''' 
-        Creates the specified file and writes the incoming server data in it.
+        ''' Establishes a connection with the Tremium Hub Bluetooth server '''
 
-        Params
-        ------
-        file_name (str) : name of the output file
-        '''
+        bluetooth_port = self.config_manager.config_data["bluetooth-port"]
 
         try : 
 
-            image_archive_path = os.path.join(self.config_manager.config_data["node-image-archive-dir"], file_name)
+            # creating a new socket
+            self.server_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+            self.server_s.settimeout(self.config_manager.config_data["bluetooth-comm-timeout"])
+            self.server_s.bind((self.config_manager.config_data["bluetooth-adapter-mac-client"], bluetooth_port))
+
+            # connecting to the hub
+            time.sleep(0.25)    
+            self.server_s.connect((self.config_manager.config_data["bluetooth-adapter-mac-server"], bluetooth_port))
+            time.sleep(0.25)
+
+        # handling server connection failure
+        except Exception as e:
+            self.server_s.close()
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.error("{0} - NodeBluetoothClient failed to connect to server : {1}".format(time_str, e))
+            raise      
+
+
+    def _check_available_updates(self, node_id=None):
+
+        ''' 
+        Returns list of available update images from the Hub
+        
+        Parameters
+        ----------
+        node_id (str) : node id to give hub for update checking 
+        '''
+        
+        update_image_names = []
+
+        if node_id is None:
+            node_id = self.config_manager.config_data["node-id"] 
+
+        try :
+
+            # pulling list of update image names
+            self._connect_to_server()
+            self.server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(node_id), 'UTF-8'))
+            response_str = self.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
+            update_image_names = response_str.split(",")
+
+            # logging completion
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.info("{0} - NodeBluetoothClient successfully checked available updates".format(time_str))
+
+        except Exception as e:
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.error("{0} - NodeBluetoothClient failed to check Hub for updates : {1}".format(time_str, e))
+
+        self.server_s.close()
+        return update_image_names
+
+
+    def _get_update_file(self, update_file):
+
+        '''
+        Pulls the specified udate file from the Hub
+        
+        Parameters
+        ----------
+        update_file (str) : name of update file to fetch
+        '''
+       
+        try : 
+
+            # downloading file from hub
+            self._connect_to_server()
+            self.server_s.send(bytes("GET_UPDATE {}".format(update_file), 'UTF-8'))
+            self._download_file(update_file)
+
+            # logging completion
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.info("{0} - NodeBluetoothClient successfully pulled update file ({1}) from Hub\
+                         ".format(time_str, update_file))
+
+        except Exception as e:    
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.error("{0} - NodeBluetoothClient failed to pull update from Hub : {1}".format(time_str, e))
+        
+        self.server_s.close()
+    
+
+    def _download_file(self, file_name):
+
+        ''' 
+        Creates the specified file and writes the incoming Hub server data in it.
+            ** assumes that the connection with the hub is already established
+            ** no error handling
+            ** does not close the existing connection (even if exception is thrown)
+        
+        Parameters
+        ----------
+        file_name (str) : name of the output file
+        '''
+
+        update_file_path = os.path.join(self.config_manager.config_data["node-image-archive-dir"], file_name)
+
+        try : 
 
             # writing incoming data to file
-            with open(image_archive_path, "wb") as archive_file_h:
+            with open(update_file_path, "wb") as archive_file_h:
 
                 file_data = self.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"])
                 while file_data:
                     archive_file_h.write(file_data)
                     file_data = self.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"])
 
+            # logging completion
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.info("{0} - NodeBluetoothClient successfully downloaded file ({1}) (socket timeout) from Hub\
+                         ".format(time_str, file_name))
+
+        # consider time out as : (no more available data)
+        # this is the worst way of checking download is complete
+        except socket.timeout: pass
+    
+
+    def _upload_file(self, file_name):
+
+        ''' 
+        Sends the specified file (from the node transfer folder) to the Hub
+            ** lets exceptions bubble up 
+
+        Parameters
+        ----------
+        file_name (str) : name of upload file (must be in transfer folder)
+        '''
+
+        upload_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], file_name)
+
+        try :
+
+            # uploading specified file to the hub
+            self._connect_to_server()
+            self.server_s.send(bytes("STORE_FILE {}".format(file_name), 'UTF-8'))
+            with open(upload_file_path, "rb") as image_file_h:
+                self.server_s.sendfile(image_file_h)
             self.server_s.close()
 
+            # logging completion
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.info("{0} - Node Bluetooth client finished pulling file (socket timeout) from server : {1}\
-                        ".format(time_str, self.config_manager.config_data["bluetooth-adapter-mac-server"]))
+            logging.info("{0} - NodeBluetoothClient successfully uploaded file ({1}) to Hub\
+                        ".format(time_str, file_name))
 
-        # handling timeouts (no more data is available)
-        except socket.timeout:
+        except :
             self.server_s.close()
-            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.info("{0} - Node Bluetooth client finished pulling file (socket timeout) from server : {1}\
-                        ".format(time_str, self.config_manager.config_data["bluetooth-adapter-mac-server"]))
-
-        except Exception as e:
-
-            self.server_s.close()
-
-            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            error_str = "Node Bluetooth client failed while pulling file from server"
-            server_address = self.config_manager.config_data["bluetooth-adapter-mac-server"]
-            logging.error("{0} - {1} : {2}, {3}".format(time_str, error_str, server_address, e))
-            raise ValueError(error_str)
+            raise
 
 
-    def send_data_files(self):
+    def _transfer_data_files(self):
 
         ''' 
         Transfers the contents of the data-transfer folder to the hub
@@ -121,94 +218,118 @@ class NodeBluetoothClient():
             3) transfer/delete all data/log files to the Tremium Hub
         '''
         
-        # list of tuples : (file name, file path)
         transfer_files = []
-
-        comm_timeout = self.config_manager.config_data["bluetooth-comm-timeout"]
         transfer_dir = self.config_manager.config_data["node-file-transfer-dir"]
         transfer_file_name = self.config_manager.config_data["node-extracted-data-file"]
         data_file_max_size = self.config_manager.config_data["node-data-file-max-size"]
 
         archived_data_pattern_segs = self.config_manager.config_data["node-archived-data-file"].split(".")
 
-        # when main data file is big enough transfer the contents to an other file
+        # when the main data file is big enough transfer the contents to an other file
         data_file_path = os.path.join(transfer_dir, transfer_file_name)
-        if os.stat(data_file_path).st_size > data_file_max_size : 
+        if os.path.isfile(data_file_path):
+            if os.stat(data_file_path).st_size > data_file_max_size : 
 
-            # waiting for data file availability and locking it
-            while not self.cache.data_file_available(): time.sleep(0.1)
-            self.cache.lock_data_file()
+                # waiting for data file availability and locking it
+                while not self.cache.data_file_available(): time.sleep(0.1)
+                self.cache.lock_data_file()
 
-            # renaming the filled / main data file
-            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            archive_file_name = archived_data_pattern_segs[0] + "-{}-".format(time_str) + archived_data_pattern_segs[1]
-            archive_file_path = os.path.join(transfer_dir, archive_file_name)
-            os.rename(data_file_path, archive_file_path)            
+                # renaming the filled / main data file
+                time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                archive_file_name = archived_data_pattern_segs[0] + "-{}".format(time_str) + "." + archived_data_pattern_segs[1]
+                archive_file_path = os.path.join(transfer_dir, archive_file_name)
+                os.rename(data_file_path, archive_file_path)            
 
-            # creating new main data file
-            open(data_file_path, "w").close()
+                # creating new main data file
+                open(data_file_path, "w").close()
 
-            # unlocking the data file
-            self.cache.unlock_data_file()
+                # unlocking the data file
+                self.cache.unlock_data_file()
 
         # collecting all (archived / ready for transfer) data files
         for element in os.listdir(transfer_dir):
             element_path = os.path.join(transfer_dir, element)
             if os.path.isfile(element_path):
 
-                # collecting archive files and log files
                 is_log_file = element.endswith(".log")
                 is_archived_data = re.search(archived_data_pattern_segs[0], element) is not None
-                if is_log_file or is_archived_data:
-                    transfer_files.append(element, element_path)
+                is_full = os.stat(element_path).st_size > data_file_max_size
+                if (is_log_file or is_archived_data) and is_full:
+                    transfer_files.append((element, element_path))
 
         try :
-
-            # going through the transfer files
+            # uploading transfer files to the Hub and deleting them from local storage
             for file_info in transfer_files:
-                
-                # uploading the current file to the Tremium Hub
-                self.server_s.send(bytes("STORE_FILE {}".format(file_info[0]), 'UTF-8'))
-                time.sleep(comm_timeout + 1)
-                with open(file_info[1], "rb") as image_file_h:
-                    self.server_s.sendfile(image_file_h)
-                time.sleep(comm_timeout + 1)
-
-                # deleting the file after the transfer
+                self._upload_file(file_info[0])
                 os.remove(file_info[1])
 
         except Exception as e:
-            
-            self.server_s.close()
-
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            error_str = "Node Bluetooth client failed while uploading to server"
-            server_address = self.config_manager.config_data["bluetooth-adapter-mac-server"]
-            logging.error("{0} - {1} : {2}, {3}".format(time_str, error_str, server_address, e))
-            raise ValueError(error_str)
+            logging.error("{0} - NodeBluetoothClient failed while transfering data files : {1}".format(time_str, e))
+            raise
 
+        # return the names of files that were sent
+        return [file_info[0] for file_info in transfer_files]
             
+
     def launch_maintenance(self):
 
         ''' 
         Launches the hub - node maintenance sequence
             - transfers/purges data files (acquisition and logs)
             - fetches available updates
+            - adds necessary entries in the image update file
         '''
+
+        update_entries = []
+        archive_dir = self.config_manager.config_data["node-image-archive-dir"]
+        time_stp_pattern = self.config_manager.config_data["image-archive-pattern"]
+        docker_registry_prefix = self.config_manager.config_data["docker_registry_prefix"]
 
         try : 
 
-            node_id = self.config_manager.config_data["node-id"]
-            message_max_size = self.config_manager.config_data["bluetooth-message-max-size"]
+            # transfering data/log files to the hub
+            self._transfer_data_files()
 
-            # sending data/log files to the tremium hub
-            self.send_data_files()
+            # pulling available updates from the hub
+            for update_file in self._check_available_updates():
+                
+                # getting old image to be updated, if any
+                old_image_file = get_matching_image(update_file, self.config_manager)
+                if old_image_file is not None:
+                    
+                    # downloading update image from the Hub
+                    self._get_update_file(update_file)
+                    update_zip_path = os.path.join(archive_dir, update_file)
+                    update_tar_path = update_zip_path[:-3]
 
-            # getting list of available updates from the hub
-            self.server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(node_id), 'UTF-8'))
-            server_response = self.server_s.recv(message_max_size).decode("utf-8")
-            update_files = server_response.split(",")
-            
+                    # uncompressing image file
+                    tar_file_h = open(update_tar_path , "wb")
+                    with gzip.open(update_zip_path, "rb") as update_zip_h:
+                        file_data = update_zip_h.read()
+                        tar_file_h.write(file_data)
+                    tar_file_h.close()
+
+                    # deleting old image archive files (.tar and .tar.gz)
+                    old_image_path = os.path.join(archive_dir, old_image_file)
+                    os.remove(old_image_path)
+                    os.remove(old_image_path[:-3])
+
+                    # adding update file entry
+                    old_image_time_stp = re.search(time_stp_pattern, old_image_file).group(3)
+                    old_image_reg_path = docker_registry_prefix + old_image_file.split(old_image_time_stp)[0][ : -1]
+                    update_image_time_stp = re.search(time_stp_pattern, update_file).group(3)
+                    update_image_reg_path = docker_registry_prefix + update_file.split(update_image_time_stp)[0][ : -1]
+                    update_entries.append(old_image_reg_path + " " + update_file[:-3] + " " + update_image_reg_path + "\n")
+
+            # halting the data collection
+            self.cache.stop_data_collection()
+
+            # writing out the update entries
+            with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
+                for entry in update_entries:
+                    update_file_h.write(entry)
+                update_file_h.write("End")
 
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
@@ -247,50 +368,7 @@ class HubServerConnectionHandler():
         self.client_s.close()
 
 
-    def handle_connection(self):
-
-        ''' Handles interactions with the client connection '''
-
-        # setting up monitoring for the socket
-        s_data_ready = select.select([self.client_s], [], [], self.config_manager.config_data["bluetooth-comm-timeout"])
-
-        # waiting to receive data (subject to timeout)
-        if s_data_ready[0]:
-    
-            try : 
-
-                # waiting and reading incoming message (blocking and subject to timeout)
-                message_str = self.client_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
-
-                if not message_str.find("CHECK_AVAILABLE_UPDATES") == -1:
-                    self.check_available_updates(message_str)
-
-                elif not message_str.find("GET_UPDATE") == -1:
-                    self.get_update(message_str)
-
-                elif not message_str.find("STORE_FILE") == -1:
-                    self.store_file(message_str)
-
-                # handling unrecognized incoming message
-                else :
-                    time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-                    logging.error("{0} - Hub Bluetooth server thread connected to peer : {1}, received unrecognized message : {2}\
-                                ".format(time_str, self.remote_address, message_str))
-    
-            except Exception as e:
-                self.client_s.close()
-                time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-                logging.error("{0} - Hub Bluetooth server thread connected to peer : {1}, failed to process incoming request : {2}\
-                            ".format(time_str, self.remote_address, e))
-    
-        # closing connection with the client
-        self.client_s.close()
-        time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-        logging.info("{0} - Hub Bluetooth server thread connected to peer : {1}, closed connection\
-                        ".format(time_str, self.remote_address))
-
-
-    def check_available_updates(self, message_str):
+    def _check_available_updates(self, message_str):
 
         '''
         Responds with a comma seperated string containing the most recent and relevant image names
@@ -322,14 +400,13 @@ class HubServerConnectionHandler():
             return list_str
 
         except Exception as e:
-
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.error("{0} - Hub Bluetooth server thread failed while handling (CHECK_AVAILABLE_UPDATES) request from Node with id : {1}, {2}\
                         ".format(time_str, node_id, e))
             return ""
 
 
-    def get_update(self, message_str):
+    def _get_update(self, message_str):
 
         ''' 
         Transfers the specified file (in the message) to the client
@@ -360,13 +437,13 @@ class HubServerConnectionHandler():
                         ".format(time_str, self.client_s.getpeername(), e))
 
 
-    def store_file(self, message_str):
+    def _store_file(self, message_str):
 
         ''' 
         Creates the specified file (in message) and writes the incoming client data in it. 
         
         Parameters
-        ------
+        ----------
         message_str (str) : incoming message from client
         '''
     
@@ -387,18 +464,60 @@ class HubServerConnectionHandler():
 
             self.client_s.close()
             
-        # handling timeouts (no more data is available)
-        except socket.timeout:
-            self.client_s.close()
+        # client closes connection when all data is transfered      
+        except ConnectionResetError :
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.info("{0} - Hub Bluetooth server thread handled (STORE_FILE) request from peer : {1}\
-                        ".format(time_str, client_address))
+            logging.info("{0} - Hub Bluetooth server thread handled (STORE_FILE) ({1}) request from peer : {2}\
+                         ".format(time_str, target_file_name, client_address))
 
         except Exception as e:
-            self.client_s.close()
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.error("{0} - Hub Bluetooth server failed while handling (STORE_FILE) request from peer : {1}, {2}\
                         ".format(time_str, client_address, e))
+
+
+    def handle_connection(self):
+
+        ''' Handles interactions with the client connection '''
+
+        # setting up monitoring for the socket
+        s_data_ready = select.select([self.client_s], [], [], self.config_manager.config_data["bluetooth-comm-timeout"])
+
+        # waiting to receive data (subject to timeout)
+        if s_data_ready[0]:
+    
+            try : 
+
+                # waiting and reading incoming message (blocking and subject to timeout)
+                message_str = self.client_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
+
+                if not message_str.find("CHECK_AVAILABLE_UPDATES") == -1:
+                    self._check_available_updates(message_str)
+
+                elif not message_str.find("GET_UPDATE") == -1:
+                    self._get_update(message_str)
+
+                elif not message_str.find("STORE_FILE") == -1:
+                    self._store_file(message_str)
+
+                # handling unrecognized incoming message
+                else :
+                    time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                    logging.error("{0} - Hub Bluetooth server thread connected to peer : {1}, received unrecognized message : {2}\
+                                ".format(time_str, self.remote_address, message_str))
+    
+            except Exception as e:
+                self.client_s.close()
+                time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                logging.error("{0} - Hub Bluetooth server thread connected to peer : {1}, failed to process incoming request : {2}\
+                            ".format(time_str, self.remote_address, e))
+    
+        # closing connection with the client
+        self.client_s.close()
+        time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+        logging.info("{0} - Hub Bluetooth server thread connected to peer : {1}, closed connection\
+                        ".format(time_str, self.remote_address))
+
 
 
 def launch_hub_bluetooth_server(config_file_path):

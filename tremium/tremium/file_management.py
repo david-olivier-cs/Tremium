@@ -10,8 +10,9 @@ def get_image_from_hub_archive(node_id, config_manager):
     
     '''
     Returns list of names of locally stored image files
-    The returned images file names correspond to the most recent image files that are
-    relevant to the specified id. 
+    The returned file names correspond to the most recent image files that are
+    relevant to the specified node id.
+    At most, one file name (the most recent one) is returned per node software component
     Params
     ------
     node_id (str) : id of the Tremium Node asking for an update.
@@ -44,9 +45,49 @@ def get_image_from_hub_archive(node_id, config_manager):
                     else:
                         matched_image_files[archive_component_name] = (archive_timestamp, archive_element)
 
-    # returning list of most recent relevant image archive file names
+    # returning list of most recent and relevant image archive file names
     return [matched_image_files[component_name][1] 
             for component_name in matched_image_files.keys()]
+
+
+def get_matching_image(update_image_name, config_manager):
+
+    '''
+    Takes the name of an update image and returns the name of the currently running
+    version of that image (ie : the image that will be updated).
+    *** assumes that all images in the node archive folder are currently running.
+   
+    Parameters
+    ----------   
+    config_manager (NodeConfigurationManager) : holds configurations for the Tremium Node
+    update_image_name (str) : 
+        name of the the image update file (name e)
+        *** file name as returned by the Hub (ie ... .tar.gz)
+    '''
+
+    image_pattern = config_manager.config_data["image-archive-pattern"]
+    archive_dir = config_manager.config_data["node-image-archive-dir"]
+
+    # extracting information from file name
+    target_component = ""
+    update_file_match = re.search(image_pattern, update_image_name)
+    if update_file_match is not None:
+        target_component = update_file_match.group(2)
+    else: return None
+
+    # going through compressed image archives
+    for image_file_name in os.listdir(archive_dir):
+        if image_file_name.endswith(".gz") and not update_image_name == image_file_name:
+
+            # compressed image archive respects the naming convention
+            update_file_match = re.search(image_pattern, image_file_name)
+            if update_file_match is not None:
+                
+                # if archive name matches the target component
+                if update_file_match.group(2) == target_component:
+                    return image_file_name
+
+    return None
 
 
 def purge_timestamped_files(target_folder, config_manager):
