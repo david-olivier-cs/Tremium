@@ -1,5 +1,5 @@
 '''
-This script is meant to run as a service in the "Communication Manager" container.
+This script runs as a service in the "communication" container.
 
     - The service listens to a dedicated "update" pub/sub topic that publishes 
       available update notifications for Tremium Node images. 

@@ -7,11 +7,31 @@ Steps to push to registry :
     3) sudo docker push gcr.io/tremium/quickstart-image:tag1
 
 
-Properly launching ouroboros : 
+Steps to pull from registry : 
 
-    docker run -d --name ouroboros \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      pyouroboros/ouroboros
+    1) cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
+
+    2) docker pull [HOSTNAME]/[PROJECT-ID]/[IMAGE]:[TAG]
+        
+        - ex : docker pull gcr.io/tremium/dev_test_node
+
+
+Container update script :
+
+    # getting image id (from repo name)
+    --> docker images gcr.io/tremium/dev_test_node --format "{{.ID}}"   
+
+    # getting container id (from image id)
+    --> docker container ps --filter "ancestor=2610d06592e5" --format "{{.ID}}"
+
+    # stopping currently running container (from container id)
+    --> docker container stop 967f4006ba01
+
+    # removing docker image (from image id)
+    --> docker image rm 2610d06592e5
+
+    # loading image from tar file
+    --> docker load -i test.tar
 
 
 Docker image naming convention : 

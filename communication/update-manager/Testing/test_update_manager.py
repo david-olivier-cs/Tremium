@@ -30,7 +30,7 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         '''
 
         # defining test parameters and pulling configuration
-        config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
+        config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
         config_manager = HubConfigurationManager(config_file_path)
         manager_script_path = os.path.join("..", "update-manager.py")
         docker_build_dir = os.path.join(".", "dummy-app")

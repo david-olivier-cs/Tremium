@@ -20,9 +20,21 @@ class TestDataCollectorIntegration(unittest.TestCase):
 
     # defining necessary test configurations
     launcher_script_path = os.path.join("..", "data-collector.py")
-    config_file_path = os.path.join("..", "..", "..", "Config", "hub-test-config.json")
+    config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
     config_manager = HubConfigurationManager(config_file_path)
     hub_transfer_dir = config_manager.config_data["hub-file-transfer-dir"]
+
+
+    @classmethod
+    def create_placeholder(cls):
+
+        ''' creates empty file in relevant folders to keep them tracked in git '''
+        
+        placeholder_path = os.path.join(cls.config_manager.config_data["hub-file-transfer-dir"], 
+                                        "placeholder.txt")
+        with open(placeholder_path, "w") as placeholder_h:
+            placeholder_h.write(" ")
+
 
     def test_data_collection(self):
 
@@ -116,6 +128,9 @@ class TestDataCollectorIntegration(unittest.TestCase):
             element_path = os.path.join(self.hub_transfer_dir, element)
             if os.path.isfile(element_path):
                 os.remove(element_path)
+
+        # placing a placeholder
+        self.create_placeholder()
 
 
 if __name__ == "__main__":

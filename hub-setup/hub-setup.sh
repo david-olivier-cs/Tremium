@@ -8,15 +8,15 @@
 # -----------------------------------------------------------------------------
 
 # defining tremium hub user (taget for configuration)
-tremium_user="david"
+tremium_user="one_wizard_boi"
 
 # defining necessary tremium paths
-tremium_main_dir="/home/david/Documents/Tremium"
-tremium_config_file="/home/david/Documents/Tremium/tremium-hub/Config/hub-test-config.json"
+tremium_main_dir="/home/one_wizard_boi/Documents/Projects/Tremium"
+tremium_config_file="/home/one_wizard_boi/Documents/Projects/Tremium/tremium-hub/config/hub-test-config.json"
 
 # defining necessary docker parameters
 image_registry_host="https://gcr.io"
-registry_credentials_path="/home/david/Documents/Tremium/tremium-hub/Config/TremiumDevEditor.json"
+registry_credentials_path="/home/one_wizard_boi/Documents/Projects/Tremium/tremium-hub/config/TremiumDevEditor.json"
 
 # defining the installation policy
 install_docker_engine=$1
@@ -33,17 +33,11 @@ fi
 echo -e "\nLogging in to the Tremium image registry ... \n"
 cat $registry_credentials_path | docker login -u _json_key --password-stdin $image_registry_host
 
-# launching the ouroboros service
-echo -e "\nLaunching the ouroboros update service ... \n"
-docker run -d --name ouroboros \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  pyouroboros/ouroboros
-
 # giving proper rights to the tremium user (docker)
-echo -e "\nGiving proper rights to the tremium user (docker)... \n"
-usermod -aG docker $tremium_user
-chown "$tremium_user":"$tremium_user" /home/"$tremium_user"/.docker -R
-chmod g+rwx "/home/$tremium_user/.docker" -R
+#echo -e "\nGiving proper rights to the tremium user (docker)... \n"
+#usermod -aG docker $tremium_user
+#chown "$tremium_user":"$tremium_user" /home/"$tremium_user"/.docker -R
+#chmod g+rwx "/home/$tremium_user/.docker" -R
 
 # defining environment variables for GCP
 echo -e "\nDefining environment variables for GCP in .bashrc... \n"

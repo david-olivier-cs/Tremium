@@ -1,3 +1,12 @@
+'''
+This script is the entry point for the data collector component which runs periodically
+in the "communication" container.
+The data collector takes care of :
+    - purging old data files from the hub file system
+    - uploading recent data files to cloud storage
+    ** data files are : log files, sensor data, ...
+'''
+
 import os
 import os.path
 
