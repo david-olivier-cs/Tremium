@@ -1,0 +1,22 @@
+{
+    "hub-id" : "dev_hub_testing_01",
+    "id-pattern" :  " ([^_]+_[^_]+_[^_]+_[^_]+)",
+    "image-archive-pattern" : "[^_]+_[^_]+_[^_]+(_\\d+)*_([^_]+)_([^\\.]+)",
+    "gcp_project_id" : "tremium",
+    "gcp_data_bucket" : "tremium-dev-1",
+    "gcp_data_bucket_path" : "",
+    "update_subscription_name" : "dev-hub-listener",
+    "update_topic_name" : "image-updates",
+    "node-container-image-pattern" : ".+dev_node_.+", 
+    "node-update-check-delay" : 15,
+    "transfer-file-max-days" : 5,
+    "hub-image-archive-dir" : "./image-archives-hub",
+    "hub-file-transfer-dir" : "./file-transfer-hub",
+    "data-collector-log-name" : "data-collector-logs.log",
+    "update-manager-log-name" : "update-manager-logs.log",
+    "bluetooth-server-log-name" : "bluetooth-server-logs.log",
+    "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
+    "bluetooth-port" : 25,
+    "bluetooth-message-max-size" : 100000,
+    "bluetooth-comm-timeout" : 5
+}
