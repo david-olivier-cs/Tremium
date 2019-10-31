@@ -11,12 +11,12 @@
 tremium_user="one_wizard_boi"
 
 # defining necessary tremium paths
-tremium_main_dir="/home/one_wizard_boi/Documents/Projects/Tremium"
-tremium_config_file="/home/one_wizard_boi/Documents/Projects/Tremium/tremium-hub/config/hub-test-config.json"
+tremium_main_dir="/home/one_wizard_boi/Documents/Projects/Tremium/Tremium"
+tremium_config_file="/home/one_wizard_boi/Documents/Projects/Tremium/Tremium/tremium-hub/config/hub-test-config.json"
 
 # defining necessary docker parameters
 image_registry_host="https://gcr.io"
-registry_credentials_path="/home/one_wizard_boi/Documents/Projects/Tremium/tremium-hub/config/TremiumDevEditor.json"
+registry_credentials_path="/home/one_wizard_boi/Documents/Projects/Tremium/Tremium/tremium-hub/config/TremiumDevEditor.json"
 
 # defining the installation policy
 install_docker_engine=$1
