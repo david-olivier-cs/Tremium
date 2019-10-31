@@ -1,0 +1,27 @@
+{
+    "node-id" : "dev_node_testing_01",
+    "id-pattern" :  " ([^_]+_[^_]+_[^_]+_[^_]+)",
+    "image-archive-pattern" : "[^_]+_[^_]+_[^_]+(_\\d+)*_([^_]+)_([^\\.]+)",
+    "docker_registry_prefix" : "gcr.io/tremium/", 
+    "docker-socket-path" : "unix://var/run/docker.sock",
+    "node-image-update-file" : "node-image-updates.txt", 
+    "node-update-check-delay" : 15,
+    "transfer-file-max-days" : 5,
+    "node-data-file-max-size" : 100,
+    "node-extracted-data-file" : "node-extracted-data.json",
+    "node-archived-data-file": "node-archived-data.json",
+    "node-image-archive-dir" : "./image-archives-node",
+    "node-file-transfer-dir" : "./file-transfer-node",
+    "update-manager-log-name" : "update-manager-logs.log",
+    "bluetooth-client-log-name" : "bluetooth-client-logs.log",
+    "bluetooth-adapter-mac-client" : "BC:14:EF:68:4D:DB",
+    "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
+    "bluetooth-port" : 25,
+    "bluetooth-message-max-size" : 100000,
+    "bluetooth-comm-timeout" : 5,
+    "node-redis-server-config" : {
+        "host" : "localhost", 
+        "port" : 6379,
+        "decode_responses" : true  
+    }
+}
