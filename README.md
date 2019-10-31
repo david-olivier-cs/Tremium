@@ -1,2 +1,0 @@
-# tremium-py
-
