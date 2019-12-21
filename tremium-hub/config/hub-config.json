@@ -17,6 +17,6 @@
     "bluetooth-server-log-name" : "bluetooth-server-logs.log",
     "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
     "bluetooth-port" : 25,
-    "bluetooth-message-max-size" : 100000,
+    "bluetooth-message-max-size" : 10000,
     "bluetooth-comm-timeout" : 5
 }

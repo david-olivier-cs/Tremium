@@ -16,24 +16,6 @@ Steps to pull from registry :
         - ex : docker pull gcr.io/tremium/dev_test_node
 
 
-Container update script :
-
-    # getting image id (from repo name)
-    --> docker images gcr.io/tremium/dev_test_node --format "{{.ID}}"   
-
-    # getting container id (from image id)
-    --> docker container ps --filter "ancestor=2610d06592e5" --format "{{.ID}}"
-
-    # stopping currently running container (from container id)
-    --> docker container stop 967f4006ba01
-
-    # removing docker image (from image id)
-    --> docker image rm 2610d06592e5
-
-    # loading image from tar file
-    --> docker load -i test.tar
-
-
 Docker image naming convention : 
 
     (organisation)_(device type)_(mounted machine)_(*index)_(component)
@@ -94,6 +76,13 @@ Bluetooth defined messages :
         * transafers the target file to the server (Tremium Hub)
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Running commands inside a container : 
+
+    --> docker exec -it (container name) (command)
+    --> docker exec -it feaf7de9c841 bash -c 'python3 bluetooth-interface.py "$TREMIUM_CONFIG_FILE"'
+
 Tremium Hub Docker file : 
 
     - a step to add the proper environment variables will have to be added
@@ -110,3 +99,11 @@ Tremium Hub Docker file :
         - cron job : 
 
             --> 0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh
+
+Docker run command : 
+
+    --> sudo docker run -t -i --privileged -v /var/run/sdp:/var/run/sdp -v /etc/systemd/system:/etc/systemd/system -v /dev/bus/usb:/dev/bus/usb -v /var/run/dbus:/var/run/dbus -v /sys/class/bluetooth:/sys/class/bluetooth  -v /var/lib/bluetooth:/var/lib/bluetooth --net=host (image id)
+
+Docker monitor resource usage : 
+
+    --> docker stats (container id)

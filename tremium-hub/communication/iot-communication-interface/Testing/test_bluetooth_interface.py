@@ -11,7 +11,7 @@ import os.path
 import subprocess
 
 from tremium.config import HubConfigurationManager
-from tremium.bluetooth import NodeBluetoothClient
+from tremium.bluetooth import NodeBluetoothClient, launch_node_bluetooth_client
 from tremium.file_management import get_image_from_hub_archive
 
 
@@ -231,16 +231,29 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         os.remove(update_listing_path)
 
 
+    def test_server_advertising(self):
+
+        ''' Checks if the Bluetooth server properly advertises its self '''
+        
+        assert launch_node_bluetooth_client(self.config_file_path, testing=True)
+        self.test_check_available_updates()
+
+
 if __name__ == '__main__':
 
-    # defining Tremium Hub Bluetooth server params
-    launcher_script_path = os.path.join("..", "bluetooth-interface.py")
-    config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
+    # set to True if server is running from docker container
+    server_from_docker = False
 
-    # launching the Tremium Hub bluetooth server as a seperate process
-    server_process_h = subprocess.Popen([sys.executable, launcher_script_path, config_file_path])
-    time.sleep(3)
+    if not server_from_docker:
+
+        # defining Tremium Hub Bluetooth server params
+        launcher_script_path = os.path.join("..", "bluetooth-interface.py")
+        config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
+
+        # launching the Tremium Hub bluetooth server as a seperate process
+        server_process_h = subprocess.Popen([sys.executable, launcher_script_path, config_file_path])
+        time.sleep(3)
 
     # executing the unit tests and killing server
     unittest.main()
-    server_process_h.kill()
+    if not server_from_docker: server_process_h.kill()
