@@ -9,7 +9,7 @@ import gzip
 
 import re
 import select
-import socket
+from bluetooth import BluetoothSocket, BluetoothError, advertise_service, find_service
 from multiprocessing import Process
 
 from .config import HubConfigurationManager, NodeConfigurationManager
@@ -19,7 +19,7 @@ from .cache import NodeCacheModel
 
 class NodeBluetoothClient():
 
-    ''' Tremium Node side bluetooth client which connects to the Tremium Hub'''
+    ''' Tremium Node side bluetooth client which connects to the Tremium Hub '''
 
     def __init__(self, config_file_path):
 
@@ -29,6 +29,8 @@ class NodeBluetoothClient():
         config_file_path (str) : path to the hub configuration file
         '''
 
+        super().__init__()
+
         # loading configurations and setting up logging
         self.config_manager = NodeConfigurationManager(config_file_path)
         log_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], 
@@ -36,14 +38,15 @@ class NodeBluetoothClient():
         logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')
         logging.getLogger().setLevel(logging.INFO)
 
+        # defining connection to server
+        self.server_s = None
+
         # connecting to local cache
         try : self.cache = NodeCacheModel(config_file_path)
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.error("{0} - NodeBluetoothClient failed to connect to cache {1}".format(time_str, e))
             raise
-
-        self.server_s = None
 
 
     def __del__(self):
@@ -61,13 +64,13 @@ class NodeBluetoothClient():
         try : 
 
             # creating a new socket
-            self.server_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-            self.server_s.settimeout(self.config_manager.config_data["bluetooth-comm-timeout"])
+            self.server_s = BluetoothSocket()
             self.server_s.bind((self.config_manager.config_data["bluetooth-adapter-mac-client"], bluetooth_port))
 
             # connecting to the hub
             time.sleep(0.25)    
             self.server_s.connect((self.config_manager.config_data["bluetooth-adapter-mac-server"], bluetooth_port))
+            self.server_s.settimeout(self.config_manager.config_data["bluetooth-comm-timeout"])
             time.sleep(0.25)
 
         # handling server connection failure
@@ -174,7 +177,7 @@ class NodeBluetoothClient():
 
         # consider time out as : (no more available data)
         # this is the worst way of checking download is complete
-        except socket.timeout: pass
+        except BluetoothError: pass
     
 
     def _upload_file(self, file_name):
@@ -192,17 +195,21 @@ class NodeBluetoothClient():
 
         try :
 
-            # uploading specified file to the hub
             self._connect_to_server()
             self.server_s.send(bytes("STORE_FILE {}".format(file_name), 'UTF-8'))
+
+            # uploading specified file to the hub            
             with open(upload_file_path, "rb") as image_file_h:
-                self.server_s.sendfile(image_file_h)
+                data = image_file_h.read(self.config_manager.config_data["bluetooth-message-max-size"])
+                while data:
+                    self.server_s.send(data)
+                    data = image_file_h.read(self.config_manager.config_data["bluetooth-message-max-size"])
             self.server_s.close()
 
             # logging completion
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.info("{0} - NodeBluetoothClient successfully uploaded file ({1}) to Hub\
-                        ".format(time_str, file_name))
+                         ".format(time_str, file_name))
 
         except :
             self.server_s.close()
@@ -337,6 +344,47 @@ class NodeBluetoothClient():
 
 
 
+def launch_node_bluetooth_client(config_file_path, testing=False):
+
+    '''
+    Launches the Tremium Node bluetooth client for communication with the Hub.
+
+    Parameters
+    ----------
+    config_file_path (str) : path to the hub configuration file
+    testing (boolean) : 
+        True : only tries once to find sever and does not run maintenance
+        False : continuously tries to find the server and runs maintenance
+    '''
+
+    # loading Node configurations
+    config_manager = NodeConfigurationManager(config_file_path)
+
+    server_address = config_manager.config_data["bluetooth-adapter-mac-server"]
+
+    # continuously checking for server device
+    while True:
+
+        # looking for the server device
+        server_found = False
+        for service in find_service(address=server_address):
+            if service["host"] == server_address:
+                server_found = True
+                break
+
+        # when server device is found, launch maintenance
+        if server_found and not testing:
+            node_bluetooth_client = NodeBluetoothClient(args.config_path)
+            node_bluetooth_client.launch_maintenance()
+
+        # single run exits here
+        if testing : return server_found
+
+        # delay before the next server check
+        sleep(config_manager.config_data["bluetooth-device-check-time"])
+
+
+
 class HubServerConnectionHandler():
 
     ''' Server side handler of new client connections '''
@@ -423,9 +471,12 @@ class HubServerConnectionHandler():
             image_file_path = os.path.join(self.config_manager.config_data["hub-image-archive-dir"], image_file_name)
             if os.path.isfile(image_file_path):
 
-                # transafering the target file
+                # transfering the target file
                 with open(image_file_path, "rb") as image_f:
-                    self.client_s.sendfile(image_f)
+                    data = image_f.read(self.config_manager.config_data["bluetooth-message-max-size"])
+                    while data : 
+                        self.client_s.send(data)
+                        data = image_f.read(self.config_manager.config_data["bluetooth-message-max-size"])
 
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.info("{0} - Hub Bluetooth server thread handled (GET_UPDATE) request from peer : {1}\
@@ -540,13 +591,17 @@ def launch_hub_bluetooth_server(config_file_path):
     # defining container for connection handler handles
     connection_handlers_h = []
 
-    # creating socket to listen for new connections
     try :
-        listener_s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+
+        # creating socket to listen for new connections
+        listener_s = BluetoothSocket()
         listener_s.bind((config_manager.config_data["bluetooth-adapter-mac-server"], 
                         config_manager.config_data["bluetooth-port"]))
-        listener_s.listen()
+        listener_s.listen(1)
     
+        # advertising the listenning connection
+        advertise_service(listener_s, config_manager.config_data["hub-id"])
+
         bind_address = listener_s.getsockname()
         time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
         logging.info("{0} - Hub Bluetooth server listening on address : {1}".format(time_str, bind_address))
@@ -564,7 +619,7 @@ def launch_hub_bluetooth_server(config_file_path):
             client_s, remote_address = listener_s.accept()
             client_s.settimeout(config_manager.config_data["bluetooth-comm-timeout"])
             connection_handler = HubServerConnectionHandler(config_file_path, client_s, remote_address)
-
+            
             # launching connection handler in a seperate process
             process_h = Process(target=connection_handler.handle_connection, args=())
             process_h.start()

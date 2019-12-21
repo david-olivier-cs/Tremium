@@ -7,7 +7,7 @@ The maintenance routine enables the node to :
 '''
 
 import argparse
-from tremium.bluetooth import NodeBluetoothClient
+from tremium.bluetooth import launch_node_bluetooth_client
 
 # parsing script arguments
 parser = argparse.ArgumentParser()
@@ -15,5 +15,4 @@ parser.add_argument("config_path", help="path to the .json config file")
 args = parser.parse_args()
 
 if __name__ == "__main__" :
-    node_bluetooth_client = NodeBluetoothClient(args.config_path)
-    node_bluetooth_client.launch_maintenance()
+    launch_node_bluetooth_client(args.config_path)

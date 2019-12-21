@@ -1,0 +1,1 @@
+0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh

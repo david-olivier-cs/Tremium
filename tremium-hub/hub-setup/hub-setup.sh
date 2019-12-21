@@ -35,7 +35,7 @@ cat $registry_credentials_path | docker login -u _json_key --password-stdin $ima
 
 # giving proper rights to the tremium user (docker)
 #echo -e "\nGiving proper rights to the tremium user (docker)... \n"
-#usermod -aG docker $tremium_user
+#usermod -a -G docker $tremium_user
 #chown "$tremium_user":"$tremium_user" /home/"$tremium_user"/.docker -R
 #chmod g+rwx "/home/$tremium_user/.docker" -R
 
