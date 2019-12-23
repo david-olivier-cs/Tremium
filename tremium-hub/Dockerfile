@@ -5,14 +5,17 @@ FROM python:3.6.8
 WORKDIR /tremium-hub
 COPY ./* /tremium-hub/
 
-# creating necessary empty directories
-RUN mkdir file-transfer-hub
-RUN mkdir image-archives-hub
-
 # installing os dependencies
 RUN apt-get update
 RUN apt-get -y install cron
 RUN apt-get -y install usbutils bluez bluetooth libbluetooth-dev python-dev
+
+# installing docker
+RUN apt-get -y lsb-release install apt-transport-https ca-certificates curl gnupg2 software-properties-common
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+RUN apt-get update
+RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 
 # installing python packages
 RUN pip install -r ./requirements.txt
@@ -28,6 +31,10 @@ ENV GOOGLE_APPLICATION_CREDENTIALS /tremium-hub/TremiumDevEditor.json
 COPY data-collector-cron /etc/cron.d/data-collector-cron
 RUN chmod 0644 /etc/cron.d/data-collector-cron
 RUN crontab /etc/cron.d/data-collector-cron
+
+# creating necessary empty directories
+#RUN mkdir file-transfer-hub
+#RUN mkdir image-archives-hub
 
 # testing (running something in the back ground)
 CMD tail -f /dev/null

@@ -43,14 +43,6 @@ Docker (Node and Hub) ID naming convention :
         ex : dev_node_compressor_5  
 
 
-To run docker commands from inside a Docker
-
-    --> make sure the login happens before the container is launched
-        and mounted
-
-    --> docker run -v /var/run/docker.sock:/var/run/docker.sock ...
-
-
 Bluetooth defined messages : 
 
 
@@ -77,11 +69,13 @@ Bluetooth defined messages :
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+Tremium Hub deployment stuff
+
 
 Running commands inside a container : 
 
     --> docker exec -it (container name) (command)
-    --> docker exec -it feaf7de9c841 bash -c 'python3 bluetooth-interface.py "$TREMIUM_CONFIG_FILE"'
+    --> docker exec -it feaf7de9c841 bash -c 'python bluetooth-interface.py "$TREMIUM_CONFIG_FILE"'
 
 Tremium Hub Docker file : 
 
@@ -99,10 +93,6 @@ Tremium Hub Docker file :
         - cron job : 
 
             --> 0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh
-
-Docker run command : 
-
-    --> sudo docker run -t -i --privileged -v /var/run/sdp:/var/run/sdp -v /etc/systemd/system:/etc/systemd/system -v /dev/bus/usb:/dev/bus/usb -v /var/run/dbus:/var/run/dbus -v /sys/class/bluetooth:/sys/class/bluetooth  -v /var/lib/bluetooth:/var/lib/bluetooth --net=host (image id)
 
 Docker monitor resource usage : 
 

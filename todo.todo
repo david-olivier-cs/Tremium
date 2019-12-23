@@ -2,7 +2,10 @@ General integration tasks :
 - [x] Allow host bluetooth interface to be used from inside docker container
 
 # Tremium Hub tasks :
-- [] Mount host folders used for storage by Hub
-- [] Test the (Hub) bluetooth server once runnning inside a docker container
+- [x] Mount host folders used for storage by Hub
+- [x] Test the (Hub) bluetooth server once runnning inside a docker container
+- [x] Remove unecessary mount volumes
 - [] Allow docker service to be used from within a docker container
+- [] Test update manager from inside docker container
+- [] Entry point script to launch (bluetooth server) and (update manager) from docker file
 - [] Setup cron job for the data collector
