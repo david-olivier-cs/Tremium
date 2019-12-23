@@ -1,3 +1,4 @@
+import os
 import sys
 import os.path
 import unittest
@@ -30,7 +31,7 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         '''
 
         # defining test parameters and pulling configuration
-        config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
+        config_file_path = os.environ['TREMIUM_CONFIG_FILE']
         config_manager = HubConfigurationManager(config_file_path)
         manager_script_path = os.path.join("..", "update-manager.py")
         docker_build_dir = os.path.join(".", "dummy-app")
@@ -38,7 +39,6 @@ class TestUpdateManagerIntegration(unittest.TestCase):
         image_output_folder = config_manager.config_data["hub-image-archive-dir"]
         log_folder = config_manager.config_data["hub-file-transfer-dir"]
         
-
         docker_client = docker.Client(base_url=config_manager.config_data["docker-socket-path"])
         pubsub_publisher = pubsub_v1.PublisherClient()
         update_topic_path = pubsub_publisher.topic_path(config_manager.config_data["gcp_project_id"],
