@@ -9,10 +9,13 @@ General integration tasks :
 - [x] Test update manager from inside docker container
 - [x] Entry point script to launch (bluetooth server) and (update manager) from docker file
 - [x] Test data collector (unit tests) from inside docker container
-- [] Setup cron job for the data collector
-- [] Setup a proper read.me for the Tremium hub
+- [x] Setup cron job for the data collector
+- [x] Setup a proper read.me for the Tremium hub
+- [] Build script to push docker image to registry
+- [] Fix the hub setup script
 
 # Tremium Node tasks
-- [] Make a pipeline for the Tremium Node build
+- [] Create pipeline for the Tremium Node build
+- [] Create build script for the Tremium Node build
 - [] Mount host folders used for storage by Node
 - [] Retrieve and relabel TrapBot code base
