@@ -11,7 +11,7 @@ RUN apt-get -y install cron
 RUN apt-get -y install usbutils bluez bluetooth libbluetooth-dev python-dev
 
 # installing docker
-RUN apt-get -y lsb-release install apt-transport-https ca-certificates curl gnupg2 software-properties-common
+RUN apt-get -y install lsb-release apt-transport-https ca-certificates curl gnupg2 software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 RUN apt-get update
@@ -30,11 +30,12 @@ ENV GOOGLE_APPLICATION_CREDENTIALS /tremium-hub/TremiumDevEditor.json
 # setting up the data-collector cronjob
 COPY data-collector-cron /etc/cron.d/data-collector-cron
 RUN chmod 0644 /etc/cron.d/data-collector-cron
+RUN chmod 777 /tremium-hub/launch-data-collector.sh
 RUN crontab /etc/cron.d/data-collector-cron
 
 # creating necessary empty directories
-#RUN mkdir file-transfer-hub
-#RUN mkdir image-archives-hub
+RUN mkdir file-transfer-hub
+RUN mkdir image-archives-hub
 
 # testing (running something in the back ground)
-CMD tail -f /dev/null
+CMD ./launch-hub-services.sh

@@ -14,6 +14,7 @@ import os.path
 import logging
 import argparse
 import datetime
+import logging.handlers
 
 import re
 import docker
@@ -31,12 +32,16 @@ if __name__ == "__main__" :
 
         # getting service configurations
         config_manager = HubConfigurationManager(args.config_path)
-
-        # setting up logging for the service
         log_file_path = os.path.join(config_manager.config_data["hub-file-transfer-dir"], 
                                      config_manager.config_data["update-manager-log-name"])
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')
-        logging.getLogger().setLevel(logging.ERROR)
+
+        # setting up logging for the service
+        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+        log_handler = logging.handlers.WatchedFileHandler(log_file_path)
+        log_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(log_handler)
 
         # creating necessary API clients 
         docker_client = docker.Client(base_url=config_manager.config_data["docker-socket-path"])

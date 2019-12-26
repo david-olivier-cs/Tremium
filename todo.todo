@@ -5,7 +5,14 @@ General integration tasks :
 - [x] Mount host folders used for storage by Hub
 - [x] Test the (Hub) bluetooth server once runnning inside a docker container
 - [x] Remove unecessary mount volumes
-- [] Allow docker service to be used from within a docker container
-- [] Test update manager from inside docker container
-- [] Entry point script to launch (bluetooth server) and (update manager) from docker file
+- [x] Allow docker service to be used from within a docker container
+- [x] Test update manager from inside docker container
+- [x] Entry point script to launch (bluetooth server) and (update manager) from docker file
+- [x] Test data collector (unit tests) from inside docker container
 - [] Setup cron job for the data collector
+- [] Setup a proper read.me for the Tremium hub
+
+# Tremium Node tasks
+- [] Make a pipeline for the Tremium Node build
+- [] Mount host folders used for storage by Node
+- [] Retrieve and relabel TrapBot code base
