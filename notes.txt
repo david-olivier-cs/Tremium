@@ -69,7 +69,7 @@ Bluetooth defined messages :
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-Tremium Hub deployment stuff
+Docker commands and stuff
 
 
 Running commands inside a container : 
@@ -77,22 +77,6 @@ Running commands inside a container :
     --> docker exec -it (container name) (command)
     --> docker exec -it feaf7de9c841 bash -c 'python bluetooth-interface.py "$TREMIUM_CONFIG_FILE"'
 
-Tremium Hub Docker file : 
-
-    - a step to add the proper environment variables will have to be added
-
-        - google auth vars
-        - tremium main directory
-        - tremium config file path
-
-    - a step to create the cron job for the the data collector component will have to be
-      added.
-
-        ** run this step after defining the necessary environment variables
-
-        - cron job : 
-
-            --> 0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh
 
 Docker monitor resource usage : 
 
