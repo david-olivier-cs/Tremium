@@ -5,6 +5,7 @@
     "gcp_project_id" : "tremium",
     "gcp_data_bucket" : "tremium-dev-1",
     "gcp_data_bucket_path" : "",
+    "docker-socket-path" : "unix://var/run/docker.sock",
     "update_subscription_name" : "dev-hub-listener",
     "update_topic_name" : "image-updates",
     "node-container-image-pattern" : ".+dev_node_.+", 
@@ -17,6 +18,6 @@
     "bluetooth-server-log-name" : "bluetooth-server-logs.log",
     "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
     "bluetooth-port" : 25,
-    "bluetooth-message-max-size" : 100000,
+    "bluetooth-message-max-size" : 10000,
     "bluetooth-comm-timeout" : 5
 }

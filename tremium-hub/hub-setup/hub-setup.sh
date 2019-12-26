@@ -29,13 +29,13 @@ if [ "$install_docker_engine" -eq 1 ]
         systemctl start docker
 fi
 
-# logging in to the docker registry
+# logging in to the google docker registry
 echo -e "\nLogging in to the Tremium image registry ... \n"
 cat $registry_credentials_path | docker login -u _json_key --password-stdin $image_registry_host
 
 # giving proper rights to the tremium user (docker)
 #echo -e "\nGiving proper rights to the tremium user (docker)... \n"
-#usermod -aG docker $tremium_user
+#usermod -a -G docker $tremium_user
 #chown "$tremium_user":"$tremium_user" /home/"$tremium_user"/.docker -R
 #chmod g+rwx "/home/$tremium_user/.docker" -R
 

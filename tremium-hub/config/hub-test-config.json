@@ -28,8 +28,9 @@
     "bluetooth-adapter-mac-server" : "B0:68:E6:23:91:1A",
     "bluetooth-adapter-mac-client" : "BC:14:EF:68:4D:DB",
     "bluetooth-port" : 25,
-    "bluetooth-message-max-size" : 100000,
+    "bluetooth-message-max-size" : 10000,
     "bluetooth-comm-timeout" : 5,
+    "bluetooth-device-check-time" : 3,
     "node-redis-server-config" : {
         "host" : "localhost", 
         "port" : 6379,

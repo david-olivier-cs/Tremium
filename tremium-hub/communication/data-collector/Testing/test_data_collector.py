@@ -1,3 +1,4 @@
+import os
 import sys
 import os.path
 import unittest
@@ -19,8 +20,8 @@ class TestDataCollectorIntegration(unittest.TestCase):
     '''
 
     # defining necessary test configurations
+    config_file_path = os.environ['TREMIUM_CONFIG_FILE']
     launcher_script_path = os.path.join("..", "data-collector.py")
-    config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
     config_manager = HubConfigurationManager(config_file_path)
     hub_transfer_dir = config_manager.config_data["hub-file-transfer-dir"]
 
