@@ -5,6 +5,7 @@
     "gcp_project_id" : "tremium",
     "gcp_data_bucket" : "tremium-dev-1",
     "gcp_data_bucket_path" : "",
+    "docker-socket-path" : "unix://var/run/docker.sock",
     "update_subscription_name" : "dev-hub-listener",
     "update_topic_name" : "image-updates",
     "node-container-image-pattern" : ".+dev_node_.+", 

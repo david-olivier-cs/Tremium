@@ -14,6 +14,7 @@ import time
 import logging
 import datetime
 import argparse
+import logging.handlers
 from google.cloud import storage
 
 from tremium.config import HubConfigurationManager
@@ -46,13 +47,22 @@ if __name__ == "__main__":
 
         # setting up logging
         log_file_path = os.path.join(file_transfer_dir, config_manager.config_data["data-collector-log-name"])
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')
-        logging.getLogger().setLevel(logging.ERROR)
+        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+        log_handler = logging.handlers.WatchedFileHandler(log_file_path)
+        log_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(log_handler)
 
         # purging old files (without transfer)
-        if args.offline :        
+        if args.offline :
+
             purge_timestamped_files(file_transfer_dir, config_manager)
             delete_log_files(file_transfer_dir)
+
+            # logging purge success
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.error("{0} - Successful purge of data files".format(time_str))
 
         # transfer to cloud bucket and purge
         else : 
@@ -73,6 +83,10 @@ if __name__ == "__main__":
 
                     # deleting the current file
                     os.remove(element_path)
+
+            # logging transfer success
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.error("{0} - Successful transfer of files to cloud storage".format(time_str))
 
     except Exception as e:
 

@@ -1,1 +1,1 @@
-0 * * * * ./$TREMIUM_MAIN_DIR/launch-data-collector.sh
+0 * * * * /tremium-hub/launch-data-collector.sh

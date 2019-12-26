@@ -6,9 +6,9 @@
 #   ./launch-data-collector.sh
 # -----------------------------------------------------------------------------
 
-# sourcing the bash profile of the tremium user
-source $HOME/.profile
-        
+# defining google authentification env variable
+export GOOGLE_APPLICATION_CREDENTIALS=/tremium-hub/TremiumDevEditor.json
+
 # launching the hub data collector
-cd $TREMIUM_MAIN_DIR
-python3 data-collector.py $TREMIUM_CONFIG_FILE
+cd /tremium-hub
+/usr/local/bin/python3.6 data-collector.py hub-config.json

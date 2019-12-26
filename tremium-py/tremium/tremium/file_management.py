@@ -126,6 +126,6 @@ def purge_timestamped_files(target_folder, config_manager):
             # processing non timestamped files
             else :
 
-                # deleting .log files
-                if element.endswith(".log"):
+                # deleting .log files, not the data-collector logs
+                if element.endswith(".log") and (not element == config_manager.config_data["data-collector-log-name"]):
                     os.remove(element_path)

@@ -29,7 +29,7 @@ if [ "$install_docker_engine" -eq 1 ]
         systemctl start docker
 fi
 
-# logging in to the docker registry
+# logging in to the google docker registry
 echo -e "\nLogging in to the Tremium image registry ... \n"
 cat $registry_credentials_path | docker login -u _json_key --password-stdin $image_registry_host
 
