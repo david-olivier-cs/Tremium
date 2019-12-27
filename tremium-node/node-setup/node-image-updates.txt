@@ -1,2 +1,0 @@
-gcr.io/tremium/dev_node_test test.tar gcr.io/tremium/dev_node_test
-End

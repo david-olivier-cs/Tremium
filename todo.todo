@@ -17,7 +17,11 @@ General integration tasks :
 # Tremium Node tasks
 - [x] Create pipeline for the Tremium Node build
 - [x] Create build script for the Tremium Node build
-- [] Create docker container launch script for Node
-- [] Create cron job for update-script
-- [] Create cron job for maintenance script
+- [x] Create docker file for Node Tremium container
+- [x] Create docker container launch script for Node
+- [x] Create cron job for update-script
+- [x] Create services entry point for docker file
+- [] Set up redis container
+- [] Live integration test between node and hub containers
+
 - [] Retrieve and relabel TrapBot code base

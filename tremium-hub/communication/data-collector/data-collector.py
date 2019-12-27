@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
             # logging purge success
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.error("{0} - Successful purge of data files".format(time_str))
+            logging.info("{0} - Successful purge of data files".format(time_str))
 
         # transfer to cloud bucket and purge
         else : 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
             # logging transfer success
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.error("{0} - Successful transfer of files to cloud storage".format(time_str))
+            logging.info("{0} - Successful transfer of files to cloud storage".format(time_str))
 
     except Exception as e:
 

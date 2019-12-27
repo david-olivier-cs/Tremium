@@ -13,10 +13,12 @@ build_folder="tremium-node-build"
 rm -fr $build_folder && mkdir $build_folder
 cp ./Dockerfile ./$build_folder/
 cp ./requirements.txt ./$build_folder/
-cp ./launch-hub-services.sh ./$build_folder/
+cp ./launch-node-services.sh ./$build_folder/
 cp -r ../tremium-py/ ./$build_folder/
 cp ./config/node-config.json ./$build_folder/
 cp ./maintenance/maintenance.py ./$build_folder/
+cp ./node-setup/update-node-cron ./$build_folder/
+cp ./node-setup/update-node.sh ./$build_folder/
 
 # moving into the build folder
 cd $build_folder
@@ -25,6 +27,6 @@ cd $build_folder
 cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
 
 # launching the docker image build
-docker build . -t tremium_node_container:latest
+docker build . -t dev_node_testing_01_acquisition-component:latest
 
 # pushing docker image to registry
