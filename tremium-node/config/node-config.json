@@ -4,7 +4,7 @@
     "image-archive-pattern" : "[^_]+_[^_]+_[^_]+(_\\d+)*_([^_]+)_([^\\.]+)",
     "docker_registry_prefix" : "gcr.io/tremium/", 
     "docker-socket-path" : "unix://var/run/docker.sock",
-    "node-image-update-file" : "node-image-updates.txt", 
+    "node-image-update-file" : "/tremium-node/image-archives-node/node-image-updates.txt", 
     "node-update-check-delay" : 15,
     "transfer-file-max-days" : 5,
     "node-data-file-max-size" : 100,

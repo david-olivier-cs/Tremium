@@ -260,7 +260,7 @@ class NodeBluetoothClient():
                 # unlocking the data file
                 self.cache.unlock_data_file()
 
-        # collecting all (archived / ready for transfer) data files
+        # collecting all (archived / ready for transfer) data files + log files
         for element in os.listdir(transfer_dir):
             element_path = os.path.join(transfer_dir, element)
             if os.path.isfile(element_path):
@@ -306,7 +306,8 @@ class NodeBluetoothClient():
             self._transfer_data_files()
 
             # pulling available updates from the hub
-            for update_file in self._check_available_updates():
+            update_files = self._check_available_updates()
+            for update_file in update_files:
                 
                 # getting old image to be updated, if any
                 old_image_file = get_matching_image(update_file, self.config_manager)
@@ -336,14 +337,17 @@ class NodeBluetoothClient():
                     update_image_reg_path = docker_registry_prefix + update_file.split(update_image_time_stp)[0][ : -1]
                     update_entries.append(old_image_reg_path + " " + update_file[:-3] + " " + update_image_reg_path + "\n")
 
-            # halting the data collection
-            self.cache.stop_data_collection()
+            # if updates were pulled from the hub
+            if len(update_files) > 0:
 
-            # writing out the update entries
-            with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
-                for entry in update_entries:
-                    update_file_h.write(entry)
-                update_file_h.write("End")
+                # halting the data collection
+                self.cache.stop_data_collection()
+
+                # writing out the update entries
+                with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
+                    for entry in update_entries:
+                        update_file_h.write(entry)
+                    update_file_h.write("End")
 
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')

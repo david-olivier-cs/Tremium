@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 
 # defining node image archive directory path
-archive_dir="/home/one_wizard_boi/Documents/Projects/Tremium/tremium-node/node-setup/"
+archive_dir="/tremium-node/image-archives-node/"
 
 # defining the updatefile path
 update_file=$1
@@ -52,3 +52,6 @@ do
 
     fi
 done < "$update_file"
+
+# once update file is completly read, crush it
+echo "" > $update_file
