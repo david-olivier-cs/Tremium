@@ -17,7 +17,7 @@ RUN rm ./requirements.txt
 
 # defining environment variables
 ENV TREMIUM_MAIN_DIR /tremium-node
-ENV TREMIUM_CONFIG_FILE /tremium-hub/node-config.json
+ENV TREMIUM_CONFIG_FILE /tremium-node/node-config.json
 
 # creating necessary empty directories
 RUN mkdir file-transfer-node

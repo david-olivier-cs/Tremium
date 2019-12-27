@@ -37,8 +37,7 @@ class NodeBluetoothClient():
         log_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], 
                                      self.config_manager.config_data["bluetooth-client-log-name"])
         
-        # setting up logging
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        # setting up logging   
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         log_handler = logging.handlers.WatchedFileHandler(log_file_path)
@@ -110,6 +109,9 @@ class NodeBluetoothClient():
             self.server_s.send(bytes("CHECK_AVAILABLE_UPDATES {}".format(node_id), 'UTF-8'))
             response_str = self.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
             update_image_names = response_str.split(",")
+
+            # if there are no updates
+            if update_image_names == [' ']:  update_image_names = []
 
             # logging completion
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
@@ -349,6 +351,10 @@ class NodeBluetoothClient():
                         update_file_h.write(entry)
                     update_file_h.write("End")
 
+            # logging maintenance success
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.info("{0} - Node Bluetooth client successfully performed maintenance".format(time_str))
+
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
             logging.error("{0} - Node Bluetooth client failed : {1}".format(time_str, e))
@@ -417,8 +423,7 @@ class HubServerConnectionHandler():
         log_file_path = os.path.join(self.config_manager.config_data["hub-file-transfer-dir"], 
                                      self.config_manager.config_data["bluetooth-server-log-name"])
 
-        # setting up logging
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        # setting up logging    
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         log_handler = logging.handlers.WatchedFileHandler(log_file_path)
@@ -449,7 +454,7 @@ class HubServerConnectionHandler():
             node_id = re.search(self.config_manager.config_data["id-pattern"], message_str).group(1)
             image_archives = get_image_from_hub_archive(node_id, self.config_manager)
 
-            list_str = ""
+            list_str = " "
             if len(image_archives) > 0:
                 list_str = ",".join(image_archives)
             self.client_s.sendall(list_str.encode())
@@ -600,8 +605,7 @@ def launch_hub_bluetooth_server(config_file_path):
     log_file_path = os.path.join(config_manager.config_data["hub-file-transfer-dir"], 
                                  config_manager.config_data["bluetooth-server-log-name"])
 
-    # setting up logging
-    logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+    # setting up logging    
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     log_handler = logging.handlers.WatchedFileHandler(log_file_path)

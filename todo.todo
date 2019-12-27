@@ -11,8 +11,8 @@ General integration tasks :
 - [x] Test data collector (unit tests) from inside docker container
 - [x] Setup cron job for the data collector
 - [x] Setup a proper read.me for the Tremium hub
-- [] Build script to push docker image to registry
-- [] Fix the hub setup script
+- [x] Build script to push docker image to registry
+- [] Finish the hub setup script
 
 # Tremium Node tasks
 - [x] Create pipeline for the Tremium Node build
@@ -21,7 +21,9 @@ General integration tasks :
 - [x] Create docker container launch script for Node
 - [x] Create cron job for update-script
 - [x] Create services entry point for docker file
-- [] Set up redis container
 - [] Live integration test between node and hub containers
+- [x] Build script to push docker image to registry
+- [] Create the node setup script
 
+# Audio analysis tasks
 - [] Retrieve and relabel TrapBot code base

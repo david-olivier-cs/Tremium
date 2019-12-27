@@ -12,7 +12,7 @@
 testing=$1
 
 # getting docker image id for the hub container
-hub_image_id=$(docker images tremium_hub_container --format="{{.ID}}")
+hub_image_id=$(docker images gcr.io/tremium/tremium_hub_container --format="{{.ID}}")
 
 # defining the launch command
 launch_command=""

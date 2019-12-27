@@ -30,6 +30,7 @@ cd $build_folder
 cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
 
 # launching the docker image build
-docker build . -t tremium_hub_container:latest
+docker build . -t gcr.io/tremium/tremium_hub_container:latest
 
-# pushing docker image to registry
+# pushing the docker image to the cloud registry
+docker push gcr.io/tremium/tremium_hub_container:latest
