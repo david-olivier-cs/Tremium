@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 
 # getting docker image id for the hub container
-node_image_id=$(docker images dev_node_testing_01_acquisition-component --format="{{.ID}}")
+node_image_id=$(docker images gcr.io/tremium/dev_node_testing_01_acquisition-component --format="{{.ID}}")
 
 # defining the launch command
 launch_command="sudo docker run --privileged \
