@@ -321,8 +321,7 @@ class NodeBluetoothClient():
 
                     # deleting old image archive files (.tar and .tar.gz)
                     old_image_path = os.path.join(archive_dir, old_image_file)
-                    try :
-                        os.remove(old_image_path)
+                    try : os.remove(old_image_path)
                     except: pass
 
                     # adding update file entry
