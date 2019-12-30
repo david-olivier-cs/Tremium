@@ -17,8 +17,6 @@ cp ./launch-node-services.sh ./$build_folder/
 cp -r ../tremium-py/ ./$build_folder/
 cp ./config/node-config.json ./$build_folder/
 cp ./maintenance/maintenance.py ./$build_folder/
-cp ./node-setup/update-node-cron ./$build_folder/
-cp ./node-setup/update-node.sh ./$build_folder/
 
 # moving into the build folder
 cd $build_folder

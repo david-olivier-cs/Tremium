@@ -115,7 +115,8 @@ class NodeBluetoothClient():
 
             # logging completion
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.info("{0} - NodeBluetoothClient successfully checked available updates".format(time_str))
+            logging.info("{0} - NodeBluetoothClient successfully checked available updates : {1}".\
+                         format(time_str, str(update_image_names)))
 
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
@@ -244,7 +245,7 @@ class NodeBluetoothClient():
         # when the main data file is big enough transfer the contents to an other file
         data_file_path = os.path.join(transfer_dir, transfer_file_name)
         if os.path.isfile(data_file_path):
-            if os.stat(data_file_path).st_size > data_file_max_size : 
+            if os.stat(data_file_path).st_size > data_file_max_size :
 
                 # waiting for data file availability and locking it
                 while not self.cache.data_file_available(): time.sleep(0.1)
@@ -302,7 +303,7 @@ class NodeBluetoothClient():
         time_stp_pattern = self.config_manager.config_data["image-archive-pattern"]
         docker_registry_prefix = self.config_manager.config_data["docker_registry_prefix"]
 
-        try : 
+        try :
 
             # transfering data/log files to the hub
             self._transfer_data_files()
@@ -317,33 +318,30 @@ class NodeBluetoothClient():
                     
                     # downloading update image from the Hub
                     self._get_update_file(update_file)
-                    update_zip_path = os.path.join(archive_dir, update_file)
-                    update_tar_path = update_zip_path[:-3]
-
-                    # uncompressing image file
-                    tar_file_h = open(update_tar_path , "wb")
-                    with gzip.open(update_zip_path, "rb") as update_zip_h:
-                        file_data = update_zip_h.read()
-                        tar_file_h.write(file_data)
-                    tar_file_h.close()
 
                     # deleting old image archive files (.tar and .tar.gz)
                     old_image_path = os.path.join(archive_dir, old_image_file)
-                    os.remove(old_image_path)
-                    os.remove(old_image_path[:-3])
+                    try :
+                        os.remove(old_image_path)
+                    except: pass
 
                     # adding update file entry
                     old_image_time_stp = re.search(time_stp_pattern, old_image_file).group(3)
                     old_image_reg_path = docker_registry_prefix + old_image_file.split(old_image_time_stp)[0][ : -1]
                     update_image_time_stp = re.search(time_stp_pattern, update_file).group(3)
                     update_image_reg_path = docker_registry_prefix + update_file.split(update_image_time_stp)[0][ : -1]
-                    update_entries.append(old_image_reg_path + " " + update_file[:-3] + " " + update_image_reg_path + "\n")
+                    update_entries.append(old_image_reg_path + " " + update_file + " " + update_image_reg_path + "\n")
 
             # if updates were pulled from the hub
-            if len(update_files) > 0:
+            if len(update_entries) > 0:
 
                 # halting the data collection
                 self.cache.stop_data_collection()
+
+                # logging the update entries
+                time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                logging.info("{0} - NodeBluetoothClient writting out update entries : {1}".\
+                             format(time_str, str(update_entries)))
 
                 # writing out the update entries
                 with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
