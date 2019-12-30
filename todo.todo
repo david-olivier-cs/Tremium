@@ -1,7 +1,7 @@
 General integration tasks : 
 - [x] Allow host bluetooth interface to be used from inside docker container
 
-# Tremium Hub tasks :
+# Hub tasks :
 - [x] Mount host folders used for storage by Hub
 - [x] Test the (Hub) bluetooth server once runnning inside a docker container
 - [x] Remove unecessary mount volumes
@@ -12,18 +12,22 @@ General integration tasks :
 - [x] Setup cron job for the data collector
 - [x] Setup a proper read.me for the Tremium hub
 - [x] Build script to push docker image to registry
+- [] Finish hub launch script (runs on device start up)
 - [] Finish the hub setup script
 
-# Tremium Node tasks
+# Node tasks
 - [x] Create pipeline for the Tremium Node build
 - [x] Create build script for the Tremium Node build
 - [x] Create docker file for Node Tremium container
 - [x] Create docker container launch script for Node
 - [x] Create cron job for update-script
 - [x] Create services entry point for docker file
-- [] Live integration test between node and hub containers
 - [x] Build script to push docker image to registry
-- [] Create the node setup script
+- [x] Live integration test between node and hub containers
+- [] Finish node launch script (runs on device start up)
+- [] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
 
-# Audio analysis tasks
-- [] Retrieve and relabel TrapBot code base
+# Rebranding project as DockNRoll
+- [] Update tremuium-py library to docknroll-py
+- [] Update various scripts and logging
+- [] Make a kickass readme.md file

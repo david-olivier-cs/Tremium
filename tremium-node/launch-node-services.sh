@@ -5,8 +5,5 @@
 maintenance_cmd="python maintenance.py $TREMIUM_CONFIG_FILE"
 $maintenance_cmd &
 
-# launching cron
-cron
-
 # preventing the docker "CMD" from ending
 tail -f /dev/null

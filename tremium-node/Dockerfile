@@ -7,7 +7,6 @@ COPY ./* /tremium-node/
 
 # installing os dependencies
 RUN apt-get update
-RUN apt-get -y install cron
 RUN apt-get -y install usbutils bluez bluetooth libbluetooth-dev python-dev
 
 # installing python packages
@@ -23,11 +22,5 @@ ENV TREMIUM_CONFIG_FILE /tremium-node/node-config.json
 RUN mkdir file-transfer-node
 RUN mkdir image-archives-node
 
-# setting up the update script cron job
-COPY update-node-cron /etc/cron.d/update-node-cron
-RUN chmod 0644 /etc/cron.d/update-node-cron
-RUN chmod 777 /tremium-node/update-node.sh
-RUN crontab /etc/cron.d/update-node-cron
-
-# testing (running something in the back ground)
+# launching entry point script
 CMD ./launch-node-services.sh
