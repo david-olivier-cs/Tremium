@@ -12,6 +12,7 @@ General integration tasks :
 - [x] Setup cron job for the data collector
 - [x] Setup a proper read.me for the Tremium hub
 - [x] Build script to push docker image to registry
+- [] Fix unit/integration tests
 - [] Finish hub launch script (runs on device start up)
 - [] Finish the hub setup script
 
