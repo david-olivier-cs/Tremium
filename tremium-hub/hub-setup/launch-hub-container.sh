@@ -12,8 +12,15 @@
 # defining the launch policy
 testing=$1
 
-# wait for wifi connection
-# ...
+# waiting for the host device to be connected to wifi
+while true; do
+    LC_ALL=C nmcli -t -f DEVICE,STATE dev | grep -q "^wlo1:connected$"
+    if [ $? -eq 0 ]; then
+        break
+    else
+        sleep 1
+    fi
+done
 
 # getting image id for the main hub container
 hub_image_id=$(docker images gcr.io/tremium/tremium_hub_container:latest --format="{{.ID}}")
@@ -22,7 +29,7 @@ hub_image_id=$(docker images gcr.io/tremium/tremium_hub_container:latest --forma
 launch_command=""
 if [ "$testing" -eq 1 ] 
     then 
-        launch_command="sudo docker run --privileged \
+        launch_command="docker run --privileged \
             -v /home/one_wizard_boi/Documents/Projects/Tremium/Tremium/tremium-hub/communication/iot-communication-interface/Testing/file-transfer-hub:/tremium-hub/file-transfer-hub \
             -v /home/one_wizard_boi/Documents/Projects/Tremium/Tremium/tremium-hub/communication/iot-communication-interface/Testing/image-archives-hub:/tremium-hub/image-archives-hub \
             -v /home/one_wizard_boi/Documents/Projects/Tremium/Tremium/tremium-hub/communication/update-manager/Testing:/tremium-hub/test-update-manager \
@@ -31,7 +38,7 @@ if [ "$testing" -eq 1 ]
             -v /var/run/sdp:/var/run/sdp \
             --net=host $hub_image_id"
     else
-        launch_command="sudo docker run --privileged \
+        launch_command="docker run --privileged \
             -v $HOME/Tremium-mounted-volumes/image-archives-hub:/tremium-hub/image-archives-hub \
             -v $HOME/Tremium-mounted-volumes/file-transfer-hub:/tremium-hub/file-transfer-hub \
             -v /var/run/docker.sock:/var/run/docker.sock \

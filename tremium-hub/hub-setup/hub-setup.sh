@@ -7,8 +7,8 @@
 #   Needs the google cloud credentials .json file
 #   Needs to be next to the get-docker.sh
 # Usage: 
-#   ./hub-setup.sh (credentials .json file path) 0 --> setup for test
-#   ./hub-setup.sh (credentials .json file path) 1 --> setup for deployment
+#   ./hub-setup.sh (credentials .json file path) 1 --> setup for test
+#   ./hub-setup.sh (credentials .json file path) 0 --> setup for deployment
 # -----------------------------------------------------------------------------
 
 # fetching script arguments
@@ -20,7 +20,7 @@ tremium_user="one_wizard_boi"
 image_registry_host="https://gcr.io"
 
 # running the script according to the context
-if [ "$testing" -eq 1 ]
+if [ "$run_context" -eq 1 ]
   
     # setting up with a test context
     then
@@ -58,11 +58,12 @@ if [ "$testing" -eq 1 ]
 
         # placing the "launch-hub-container.sh" script
         cp ./launch-hub-container.sh $HOME/launch-hub-container.sh
+        chmod 777 $HOME/launch-hub-container.sh
 
 fi
 
 # installing os dependencies
-pt-get update
+apt-get update
 apt-get -y install cron
 apt-get -y install usbutils bluez bluetooth libbluetooth-dev
 
@@ -76,9 +77,10 @@ service bluetooth restart
 
 # installing docker, if not installed
 docker_socket=/var/run/docker.sock
-if test -f "$docker_socket"
+if test -e "$docker_socket"
     then
-
+        echo -e "\nDocker already installed on host machine \n"
+    else
         echo -e "\nInstalling Docker engine ... \n"
         sh ./get-docker.sh
         systemctl start docker
@@ -87,7 +89,6 @@ if test -f "$docker_socket"
         usermod -a -G docker $tremium_user
         chown "$tremium_user":"$tremium_user" /home/"$tremium_user"/.docker -R
         chmod g+rwx "/home/$tremium_user/.docker" -R
-
 fi
 
 # logging in to the google docker registry
@@ -98,7 +99,10 @@ cat $registry_credentials_path | docker login -u _json_key --password-stdin $ima
 docker pull gcr.io/tremium/tremium_hub_container:latest
 
 # scheduling the hub start up script on host device power up
-# ...
+crontab -l > new_cron
+echo "@reboot $HOME/launch-hub-container.sh 0" >> new_cron
+crontab new_cron
+rm new_cron
 
 # restarting the host device
 echo -e "\nTremium Hub will be launched after reboot \n"
