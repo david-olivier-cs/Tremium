@@ -27,6 +27,7 @@ hub_image_id=$(docker images gcr.io/tremium/tremium_hub_container:latest --forma
 
 # defining the launch command for the main container
 launch_command=""
+home_dir="/home/one_wizard_boi"
 if [ "$testing" -eq 1 ] 
     then 
         launch_command="docker run --privileged \
@@ -39,8 +40,8 @@ if [ "$testing" -eq 1 ]
             --net=host $hub_image_id"
     else
         launch_command="docker run --privileged \
-            -v $HOME/Tremium-mounted-volumes/image-archives-hub:/tremium-hub/image-archives-hub \
-            -v $HOME/Tremium-mounted-volumes/file-transfer-hub:/tremium-hub/file-transfer-hub \
+            -v $home_dir/tremium-mounted-volumes/image-archives-hub:/tremium-hub/image-archives-hub \
+            -v $home_dir/tremium-mounted-volumes/file-transfer-hub:/tremium-hub/file-transfer-hub \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v /var/run/sdp:/var/run/sdp \
             --net=host $hub_image_id"

@@ -6,9 +6,10 @@
 # -----------------------------------------------------------------------------
 
 # defining node image archive directory path
-archive_dir="$HOME/Tremium-mounted-volumes/image-archives-node/"
-update_file="$HOME/Tremium-mounted-volumes/image-archives-node/node-image-updates.txt"
-node_startup_script="$HOME/launch-node-container.sh"
+home_dir="/home/one_wizard_boi"
+archive_dir="$home_dir/Tremium-mounted-volumes/image-archives-node/"
+update_file="$home_dir/Tremium-mounted-volumes/image-archives-node/node-image-updates.txt"
+node_startup_script="$home_dir/launch-node-container.sh"
 
 # making sure the update file is not currently being edited
 end_tag=$(tail -1 $update_file | head -1)
