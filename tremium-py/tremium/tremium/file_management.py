@@ -61,7 +61,7 @@ def get_matching_image(update_image_name, config_manager):
     ----------   
     config_manager (NodeConfigurationManager) : holds configurations for the Tremium Node
     update_image_name (str) : 
-        name of the the image update file (name e)
+        name of the the image update file (name)
         *** file name as returned by the Hub (ie ... .tar.gz)
     '''
 
@@ -69,6 +69,7 @@ def get_matching_image(update_image_name, config_manager):
     archive_dir = config_manager.config_data["node-image-archive-dir"]
 
     # extracting information from file name
+    # invalid image names are rejected, ie : return None
     target_component = ""
     update_file_match = re.search(image_pattern, update_image_name)
     if update_file_match is not None:
@@ -76,8 +77,9 @@ def get_matching_image(update_image_name, config_manager):
     else: return None
 
     # going through compressed image archives
+    # if the update image name is already an existing image name in the Node, reject it
     for image_file_name in os.listdir(archive_dir):
-        if image_file_name.endswith(".gz") and not update_image_name == image_file_name:
+        if image_file_name.endswith(".gz") and (not update_image_name == image_file_name):
 
             # compressed image archive respects the naming convention
             update_file_match = re.search(image_pattern, image_file_name)

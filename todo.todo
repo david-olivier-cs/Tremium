@@ -1,7 +1,7 @@
 General integration tasks : 
 - [x] Allow host bluetooth interface to be used from inside docker container
 
-# Tremium Hub tasks :
+# Hub tasks :
 - [x] Mount host folders used for storage by Hub
 - [x] Test the (Hub) bluetooth server once runnning inside a docker container
 - [x] Remove unecessary mount volumes
@@ -11,11 +11,19 @@ General integration tasks :
 - [x] Test data collector (unit tests) from inside docker container
 - [x] Setup cron job for the data collector
 - [x] Setup a proper read.me for the Tremium hub
-- [] Build script to push docker image to registry
-- [] Fix the hub setup script
+- [x] Build script to push docker image to registry
+- [x] Fix unit/integration tests
+- [x] Finish hub launch script (runs on device start up)
+- [x] Finish the hub setup script
 
-# Tremium Node tasks
-- [] Create pipeline for the Tremium Node build
-- [] Create build script for the Tremium Node build
-- [] Mount host folders used for storage by Node
-- [] Retrieve and relabel TrapBot code base
+# Node tasks
+- [x] Create pipeline for the Tremium Node build
+- [x] Create build script for the Tremium Node build
+- [x] Create docker file for Node Tremium container
+- [x] Create docker container launch script for Node
+- [x] Create cron job for update-script
+- [x] Create services entry point for docker file
+- [x] Build script to push docker image to registry
+- [x] Live integration test between node and hub containers
+- [x] Finish node launch script (runs on device start up)
+- [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)

@@ -37,8 +37,7 @@ class NodeBluetoothClient():
         log_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], 
                                      self.config_manager.config_data["bluetooth-client-log-name"])
         
-        # setting up logging
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        # setting up logging   
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         log_handler = logging.handlers.WatchedFileHandler(log_file_path)
@@ -111,9 +110,13 @@ class NodeBluetoothClient():
             response_str = self.server_s.recv(self.config_manager.config_data["bluetooth-message-max-size"]).decode("utf-8")
             update_image_names = response_str.split(",")
 
+            # if there are no updates
+            if update_image_names == [' ']:  update_image_names = []
+
             # logging completion
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-            logging.info("{0} - NodeBluetoothClient successfully checked available updates".format(time_str))
+            logging.info("{0} - NodeBluetoothClient successfully checked available updates : {1}".\
+                         format(time_str, str(update_image_names)))
 
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
@@ -242,7 +245,7 @@ class NodeBluetoothClient():
         # when the main data file is big enough transfer the contents to an other file
         data_file_path = os.path.join(transfer_dir, transfer_file_name)
         if os.path.isfile(data_file_path):
-            if os.stat(data_file_path).st_size > data_file_max_size : 
+            if os.stat(data_file_path).st_size > data_file_max_size :
 
                 # waiting for data file availability and locking it
                 while not self.cache.data_file_available(): time.sleep(0.1)
@@ -260,7 +263,7 @@ class NodeBluetoothClient():
                 # unlocking the data file
                 self.cache.unlock_data_file()
 
-        # collecting all (archived / ready for transfer) data files
+        # collecting all (archived / ready for transfer) data files + log files
         for element in os.listdir(transfer_dir):
             element_path = os.path.join(transfer_dir, element)
             if os.path.isfile(element_path):
@@ -300,13 +303,14 @@ class NodeBluetoothClient():
         time_stp_pattern = self.config_manager.config_data["image-archive-pattern"]
         docker_registry_prefix = self.config_manager.config_data["docker_registry_prefix"]
 
-        try : 
+        try :
 
             # transfering data/log files to the hub
             self._transfer_data_files()
 
             # pulling available updates from the hub
-            for update_file in self._check_available_updates():
+            update_files = self._check_available_updates()
+            for update_file in update_files:
                 
                 # getting old image to be updated, if any
                 old_image_file = get_matching_image(update_file, self.config_manager)
@@ -314,36 +318,39 @@ class NodeBluetoothClient():
                     
                     # downloading update image from the Hub
                     self._get_update_file(update_file)
-                    update_zip_path = os.path.join(archive_dir, update_file)
-                    update_tar_path = update_zip_path[:-3]
-
-                    # uncompressing image file
-                    tar_file_h = open(update_tar_path , "wb")
-                    with gzip.open(update_zip_path, "rb") as update_zip_h:
-                        file_data = update_zip_h.read()
-                        tar_file_h.write(file_data)
-                    tar_file_h.close()
 
                     # deleting old image archive files (.tar and .tar.gz)
                     old_image_path = os.path.join(archive_dir, old_image_file)
-                    os.remove(old_image_path)
-                    os.remove(old_image_path[:-3])
+                    try : os.remove(old_image_path)
+                    except: pass
 
                     # adding update file entry
                     old_image_time_stp = re.search(time_stp_pattern, old_image_file).group(3)
                     old_image_reg_path = docker_registry_prefix + old_image_file.split(old_image_time_stp)[0][ : -1]
                     update_image_time_stp = re.search(time_stp_pattern, update_file).group(3)
                     update_image_reg_path = docker_registry_prefix + update_file.split(update_image_time_stp)[0][ : -1]
-                    update_entries.append(old_image_reg_path + " " + update_file[:-3] + " " + update_image_reg_path + "\n")
+                    update_entries.append(old_image_reg_path + " " + update_file + " " + update_image_reg_path + "\n")
 
-            # halting the data collection
-            self.cache.stop_data_collection()
+            # if updates were pulled from the hub
+            if len(update_entries) > 0:
 
-            # writing out the update entries
-            with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
-                for entry in update_entries:
-                    update_file_h.write(entry)
-                update_file_h.write("End")
+                # halting the data collection
+                self.cache.stop_data_collection()
+
+                # logging the update entries
+                time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                logging.info("{0} - NodeBluetoothClient writting out update entries : {1}".\
+                             format(time_str, str(update_entries)))
+
+                # writing out the update entries
+                with open(self.config_manager.config_data["node-image-update-file"], "w") as update_file_h:
+                    for entry in update_entries:
+                        update_file_h.write(entry)
+                    update_file_h.write("End")
+
+            # logging maintenance success
+            time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+            logging.info("{0} - Node Bluetooth client successfully performed maintenance".format(time_str))
 
         except Exception as e:
             time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
@@ -413,8 +420,7 @@ class HubServerConnectionHandler():
         log_file_path = os.path.join(self.config_manager.config_data["hub-file-transfer-dir"], 
                                      self.config_manager.config_data["bluetooth-server-log-name"])
 
-        # setting up logging
-        logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+        # setting up logging    
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         log_handler = logging.handlers.WatchedFileHandler(log_file_path)
@@ -445,7 +451,7 @@ class HubServerConnectionHandler():
             node_id = re.search(self.config_manager.config_data["id-pattern"], message_str).group(1)
             image_archives = get_image_from_hub_archive(node_id, self.config_manager)
 
-            list_str = ""
+            list_str = " "
             if len(image_archives) > 0:
                 list_str = ",".join(image_archives)
             self.client_s.sendall(list_str.encode())
@@ -596,8 +602,7 @@ def launch_hub_bluetooth_server(config_file_path):
     log_file_path = os.path.join(config_manager.config_data["hub-file-transfer-dir"], 
                                  config_manager.config_data["bluetooth-server-log-name"])
 
-    # setting up logging
-    logging.basicConfig(filename=log_file_path, filemode="a", format='%(name)s - %(levelname)s - %(message)s')    
+    # setting up logging    
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     log_handler = logging.handlers.WatchedFileHandler(log_file_path)

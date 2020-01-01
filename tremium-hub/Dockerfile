@@ -15,7 +15,7 @@ RUN apt-get -y install lsb-release apt-transport-https ca-certificates curl gnup
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 RUN apt-get update
-RUN apt-get -y install docker-ce docker-ce-cli containerd.io
+RUN apt-get -y install docker-ce-cli
 
 # installing python packages
 RUN pip install -r ./requirements.txt
@@ -37,5 +37,5 @@ RUN crontab /etc/cron.d/data-collector-cron
 RUN mkdir file-transfer-hub
 RUN mkdir image-archives-hub
 
-# testing (running something in the back ground)
+# launching entry point script
 CMD ./launch-hub-services.sh

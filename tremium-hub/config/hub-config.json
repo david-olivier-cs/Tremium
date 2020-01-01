@@ -9,7 +9,7 @@
     "update_subscription_name" : "dev-hub-listener",
     "update_topic_name" : "image-updates",
     "node-container-image-pattern" : ".+dev_node_.+", 
-    "node-update-check-delay" : 15,
+    "node-update-check-delay" : 30,
     "transfer-file-max-days" : 5,
     "hub-image-archive-dir" : "./image-archives-hub",
     "hub-file-transfer-dir" : "./file-transfer-hub",
