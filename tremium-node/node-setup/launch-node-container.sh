@@ -16,9 +16,10 @@ target_image_id=$1
 node_image_id=$(docker images gcr.io/tremium/dev_node_testing_01_acquisition-component:latest --format="{{.ID}}")
 
 # defining launch command for the acquisition component
+home_dir="/home/one_wizard_boi"
 launch_command="sudo docker run --privileged \
-    -v $HOME/Tremium-mounted-volumes/image-archives-node:/tremium-node/image-archives-node \
-    -v $HOME/Tremium-mounted-volumes/file-transfer-node:/tremium-node/file-transfer-node \
+    -v $home_dir/tremium-mounted-volumes/image-archives-node:/tremium-node/image-archives-node \
+    -v $home_dir/tremium-mounted-volumes/file-transfer-node:/tremium-node/file-transfer-node \
     -v /var/run/sdp:/var/run/sdp \
     --net=host $node_image_id"
 

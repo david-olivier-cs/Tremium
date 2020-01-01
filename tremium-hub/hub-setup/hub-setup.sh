@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deployment script for the Tremium Hub
+# Setup script for the Tremium Hub host device
 #
 # Requirements
 #   Needs internet access

@@ -25,5 +25,5 @@ General integration tasks :
 - [x] Create services entry point for docker file
 - [x] Build script to push docker image to registry
 - [x] Live integration test between node and hub containers
-- [] Finish node launch script (runs on device start up)
-- [] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
+- [x] Finish node launch script (runs on device start up)
+- [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
