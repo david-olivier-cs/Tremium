@@ -190,7 +190,6 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
 
         # defining test parameters
         update_image_zip = "dev_node_testing_01_acquisition-component_2019-09-07_13-57-19.tar.gz"
-        update_image_archive = "dev_node_testing_01_acquisition-component_2019-09-07_13-57-19.tar"
         update_listing_path = os.path.join(".", self.config_manager.config_data["node-image-update-file"])
     
         # creating necessary artifacts (1)
@@ -204,7 +203,7 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
 
         # defining expected return (1)
         expected_listing = docker_registry_prefix + "dev_node_testing_01_acquisition-component "
-        expected_listing += update_image_archive + " "
+        expected_listing += update_image_zip + " "
         expected_listing += docker_registry_prefix + "dev_node_testing_01_acquisition-component\nEnd" 
 
         # launching hub maintenance and checking update listing (1)
@@ -213,22 +212,9 @@ class IntegrationTestHubBluetoothServer(unittest.TestCase):
         with open(update_listing_path, "r") as update_listing_h:
             assert expected_listing.rstrip() == update_listing_h.read().rstrip()
 
-        # cleaning up (1)
+        # cleaning up
         os.remove(update_listing_path)
         os.remove(os.path.join(node_archive_dir, update_image_zip))
-        os.remove(os.path.join(node_archive_dir, update_image_archive))
-
-        # defining expected return (2)
-        expected_listing = "End"
-
-        # launching hub maintenance and checking update listing (2)
-        node_bluetooth_client = NodeBluetoothClient(self.config_file_path)
-        node_bluetooth_client.launch_maintenance()
-        with open(update_listing_path, "r") as update_listing_h:
-            assert expected_listing == str(update_listing_h.read()) 
-
-        # cleaning up (2)
-        os.remove(update_listing_path)
 
 
     def test_server_advertising(self):

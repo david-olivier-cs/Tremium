@@ -91,6 +91,10 @@ if __name__ == "__main__" :
                         os.remove(archive_path)
                         docker_client.remove_image(new_image_path)
 
+                        # logging successful image pull
+                        time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+                        logging.info("{0} - Node update manager successfuly pulled docker image : {1}".format(time_str, new_image_path))
+
                 except Exception as e:
                     time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
                     logging.error("{0} - Node update manager failed : {1}".format(time_str, e))

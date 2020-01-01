@@ -11,7 +11,6 @@ build_folder="tremium-hub-build"
 
 # creating the build directory and copying copying dependencies
 rm -fr $build_folder && mkdir $build_folder
-
 cp ./Dockerfile ./$build_folder/
 cp ./requirements.txt ./$build_folder/
 cp ./launch-hub-services.sh ./$build_folder/
@@ -31,6 +30,7 @@ cd $build_folder
 cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
 
 # launching the docker image build
-docker build . -t tremium_hub_comm_container:latest
+docker build . -t gcr.io/tremium/tremium_hub_container:latest
 
-# pushing docker image to registry
+# pushing the docker image to the cloud registry
+docker push gcr.io/tremium/tremium_hub_container:latest
