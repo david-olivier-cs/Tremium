@@ -16,7 +16,7 @@
     "bluetooth-port" : 25,
     "bluetooth-message-max-size" : 10000,
     "bluetooth-comm-timeout" : 5,
-    "bluetooth-device-check-time" : 80,
+    "bluetooth-device-check-time" : 1200,
     "node-redis-server-config" : {
         "host" : "localhost", 
         "port" : 6379,
