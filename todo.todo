@@ -27,3 +27,10 @@ General integration tasks :
 - [x] Live integration test between node and hub containers
 - [x] Finish node launch script (runs on device start up)
 - [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
+
+# Documentation tasks
+- [] Create wiki for the project
+- [] Create main readme.md file for the project
+
+# Sound analysis tasks
+- [] Integrate TrapBot code into the project code base
