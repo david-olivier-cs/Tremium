@@ -37,7 +37,7 @@ chmod 777 $HOME/update-node.sh
 
 # installing os dependencies
 apt-get update
-apt-get -y install cron
+apt-get -y install cron redis-server
 apt-get -y install usbutils bluez bluetooth libbluetooth-dev
 
 # making necessary changes to the bluetooth interface
@@ -47,6 +47,9 @@ replacement_line="ExecStart=/usr/lib/bluetooth/bluetoothd -C"
 sed -i 's/"$target_line"/"$replacement_line"/g' $config_file
 systemctl daemon-reload
 service bluetooth restart
+
+# setting up redis
+sudo systemctl enable redis-server.service
 
 # installing docker, if not installed
 docker_socket=/var/run/docker.sock
