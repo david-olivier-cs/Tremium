@@ -1,5 +1,7 @@
 General integration tasks : 
 - [x] Allow host bluetooth interface to be used from inside docker container
+- [] Fix the requirements.txt files (hub/node)
+- [] Test node image build
 
 # Hub tasks :
 - [x] Mount host folders used for storage by Hub
@@ -29,8 +31,9 @@ General integration tasks :
 - [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
 
 # Documentation tasks
+- [x] Create main readme.md file for the project
 - [] Create wiki for the project
-- [] Create main readme.md file for the project
 
-# Sound analysis tasks
-- [] Integrate TrapBot code into the project code base
+# Audio extraction tasks
+- [x] Implement the audio export handler
+- [] Test the audio export handler

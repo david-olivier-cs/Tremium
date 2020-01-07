@@ -60,6 +60,20 @@ class NodeCacheModel():
         self.r_server.set("data_file_lock", "0")
 
 
+    def add_audio_export_request(self, request_str):
+        self.r_server.lpush("audio_export_requests", request_str)
+
+    def get_audio_export_request():
+
+        '''
+        Fetches next element in the request queue
+        Returns : 
+            (str or None) : export request string
+        '''
+
+        return self.r_server.rpop("audio_export_requests")
+
+
     def start_data_collection(self):
         self.r_server.set("data_collection", "1")
     
