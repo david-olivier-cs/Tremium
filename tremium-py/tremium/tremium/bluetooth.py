@@ -30,8 +30,6 @@ class NodeBluetoothClient():
         config_file_path (str) : path to the hub configuration file
         '''
 
-        super().__init__()
-
         # loading configurations
         self.config_manager = NodeConfigurationManager(config_file_path)
         log_file_path = os.path.join(self.config_manager.config_data["node-file-transfer-dir"], 
