@@ -233,7 +233,7 @@ if __name__ == '__main__':
     if not server_from_docker:
 
         # defining Tremium Hub Bluetooth server params
-        config_file_path = os.environ['TREMIUM_CONFIG_FILE']
+        config_file_path = os.path.join("..", "..", "..", "config", "hub-test-config.json")
         launcher_script_path = os.path.join("..", "bluetooth-interface.py")
 
         # launching the Tremium Hub bluetooth server as a seperate process
