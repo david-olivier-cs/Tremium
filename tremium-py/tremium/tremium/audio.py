@@ -7,6 +7,7 @@ import pyaudio
 import time
 import logging
 import datetime
+import logging.handlers
 
 from multiprocessing import Process 
 
@@ -51,13 +52,6 @@ class AudioDataGenerator():
         log_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
         logger.addHandler(log_handler)
 
-        # creating an audio port interface
-        try: self.port_audio = pyaudio.PyAudio()
-        except Exception as e:
-            time_str = self.get_timestamp_str()
-            logging.error("{0} - AudioDataGenerator failed to interface with audio {1}".format(time_str, e))
-            raise
-
         # connecting to host cache server (redis)
         try: self.cache = NodeCacheModel(config_file_path)
         except Exception as e:
@@ -69,14 +63,14 @@ class AudioDataGenerator():
         self.launch_audio_recording()
 
 
-    def __del__(self):
-        self.port_audio.terminate()
-
-
     @staticmethod
     def get_timestamp_str():
         ''' Convenience function to get a time string '''
         return datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
+
+
+    def stop_data_collection(self):
+        self.cache.stop_data_collection()
 
 
     def launch_audio_recording(self):
@@ -103,11 +97,12 @@ class AudioDataGenerator():
         node_data_dir = self.config_manager.config_data["node-file-transfer-dir"]
 
         # opening an audio stream
-        audio_stream = self.port_audio.open(format=self.sample_format,
-                                channels=self.channels,
-                                rate=self.fs,
-                                frames_per_buffer=self.audio_chunk_size,
-                                input=True)
+        port_audio = pyaudio.PyAudio()
+        audio_stream = port_audio.open(format=self.sample_format,
+                            channels=self.channels,
+                            rate=self.fs,
+                            frames_per_buffer=self.audio_chunk_size,
+                            input=True)
 
         # continuously passing data through the frame window
         stop_recording = False 
@@ -132,11 +127,15 @@ class AudioDataGenerator():
                 while request is not None:
                     audio_export_requests.append(request)
                     request = self.cache.get_audio_export_request()
+                
+                # logging the received request count
+                time_str = self.get_timestamp_str()
+                logging.info("{0} - AudioExportHandler recevied : {1} export requests".format(time_str, len(audio_export_requests)))
 
                 # handling audio export requests
                 for export_request in audio_export_requests:
 
-                    try : 
+                    try :
 
                         audio_event_frames = []
 
@@ -144,8 +143,11 @@ class AudioDataGenerator():
                         request_timestamp = time.mktime(datetime.datetime.strptime(export_request.split("__")[0], '%Y-%m-%d_%H-%M-%S').timetuple())
                         event_start = int(request_timestamp - recording_start_time)
 
+                        start_frame = 0
+                        end_frame = 0
+
                         # isolating the event data, when fully in latest recording
-                        if (event_start > 0) and (event_start < self.audio_window_max_len - self.audio_window_extract_len):
+                        if (event_start >= 0) and (event_start < self.audio_window_max_len - self.audio_window_extract_len):
                             start_frame = (event_start * self.fs) // self.audio_chunk_size
                             end_frame = ((event_start + self.audio_window_extract_len) * self.fs) // self.audio_chunk_size
                             audio_event_frames = audio_frames[start_frame : end_frame]
@@ -157,31 +159,35 @@ class AudioDataGenerator():
                             audio_event_frames = audio_frames[start_frame : ]
                     
                         # isolating the event data, when partially before the latest recording
-                        elif (event_start < 0) and (event_start > 0 - audio_window_extract_len/2):
+                        elif (event_start < 0) and (event_start > 0 - self.audio_window_extract_len/2):
                             end_frame = ((event_start * self.fs) // self.audio_chunk_size) + ((self.audio_window_extract_len * self.fs) // self.audio_chunk_size)
-                            audio_event_frames = audio_event_data[ : end_frame]
+                            audio_event_frames = audio_frames[ : end_frame]
 
                         # saving the isolated event audio
-                        if not audio_event_data == [] :
+                        if not audio_event_frames == [] :
                             audio_file_name = os.path.join(node_data_dir, export_request + ".wav")
                             wf = wave.open(audio_file_name, 'wb')
                             wf.setnchannels(self.channels)
-                            wf.setsampwidth(self.port_audio.get_sample_size(self.sample_format))
+                            wf.setsampwidth(port_audio.get_sample_size(self.sample_format))
                             wf.setframerate(self.fs)
                             wf.writeframes(b''.join(audio_event_frames))
                             wf.close()
 
                     # simply skip problematic requests
-                    except: pass
+                    except Exception as e:
+                        time_str = self.get_timestamp_str()
+                        logging.error("{0} - AudioExportHandler failed to handle export request  : {1}".format(time_str, e))
 
                 # checking the shared flags
                 if not cache.check_data_collection():
                     stop_recording = True
                     audio_stream.stop_stream()
                     audio_stream.close()
+                    port_audio.terminate()
 
             # stopping the recoring process
             except:
                 audio_stream.stop_stream()
                 audio_stream.close()
+                port_audio.terminate()
                 stop_recording = True

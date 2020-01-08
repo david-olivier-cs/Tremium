@@ -59,11 +59,14 @@ class NodeCacheModel():
         # locking flag for extracted data file
         self.r_server.set("data_file_lock", "0")
 
+        # making sure the export request list/queue is empty
+        while self.get_audio_export_request() is not None: pass
+
 
     def add_audio_export_request(self, request_str):
         self.r_server.lpush("audio_export_requests", request_str)
 
-    def get_audio_export_request():
+    def get_audio_export_request(self):
 
         '''
         Fetches next element in the request queue
