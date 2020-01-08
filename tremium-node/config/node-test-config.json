@@ -18,8 +18,8 @@
     "bluetooth-message-max-size" : 10000,
     "bluetooth-comm-timeout" : 5,
     "bluetooth-device-check-time" : 1200,
-    "audio_continuous_recording_len" : 60,
-    "audio_event_len" : 4,
+    "audio_continuous_recording_len" : 15,
+    "audio_event_len" : 2,
     "node-redis-server-config" : {
         "host" : "localhost", 
         "port" : 6379,
