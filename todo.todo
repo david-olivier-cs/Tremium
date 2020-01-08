@@ -1,7 +1,7 @@
 General integration tasks : 
 - [x] Allow host bluetooth interface to be used from inside docker container
-- [] Fix the requirements.txt files (hub/node)
-- [] Test node image build
+- [] Mark required modules for Tremium in the required module list
+- [] Keep the requirements.txt files to a minimum (hub/node)
 
 # Hub tasks :
 - [x] Mount host folders used for storage by Hub
@@ -36,4 +36,5 @@ General integration tasks :
 
 # Audio extraction tasks
 - [x] Implement the audio export handler
-- [] Test the audio export handler
+- [x] Test the audio export handler
+- [] Implement generic event extractor
