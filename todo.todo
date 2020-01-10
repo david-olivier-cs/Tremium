@@ -32,7 +32,7 @@ General integration tasks :
 
 # Documentation tasks
 - [x] Create main readme.md file for the project
-- [] Create wiki for the project
+- [x] Create wiki for the project
 
 # Audio extraction tasks
 - [x] Implement the audio export handler

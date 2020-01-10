@@ -15,9 +15,9 @@ To simplify the project, I narrowed down the “machinery” to just automobiles
 <br>
 
 ### The project can be divided into two main categories
-+ **Infrastructure**
-    + Tremium Node architecture
-    + Tremium Hub architecture
++ **Project Infrastructure**
+    + Tremium hub architecture
+    + Tremium node architecture
     + Hardware and mounting
     + Google cloud infrastructure
     + Pushing updates Tremium Node(s)
