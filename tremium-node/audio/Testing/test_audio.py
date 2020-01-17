@@ -7,6 +7,7 @@ import datetime
 import unittest
 from tremium.audio import AudioDataGenerator
 from tremium.cache import NodeCacheModel
+from tremium.config import NodeConfigurationManager
 
 
 class TestAudioDataGenerator(unittest.TestCase):
@@ -15,12 +16,6 @@ class TestAudioDataGenerator(unittest.TestCase):
 
     config_file_path = os.path.join("..", "..", "config", "node-test-config.json")
     data_dir = "file-transfer-node"
-
-    @staticmethod
-    def get_time_str():
-        ''' Conveniance function to get time string '''
-        return datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
-
 
     def test_audio_file_export(self):
 
@@ -33,23 +28,27 @@ class TestAudioDataGenerator(unittest.TestCase):
         # creating a cache (redis) connection
         cache = NodeCacheModel(self.config_file_path)
 
-        # launching the audio export handler (automatic)
-        data_generator = AudioDataGenerator(self.config_file_path)
+        # loading node configurations
+        config_manager = NodeConfigurationManager(self.config_file_path)
+
+        # launching the audio export handler
+        data_generator = AudioDataGenerator(self.config_file_path, auto_start=False)
+        data_generator.launch_audio_export_handler()
 
         # sending some audio export requests
         export_requests = []
-        export_requests.append(self.get_time_str() + "__5")
+        export_requests.append(str(int(time.time())) + "__5")
         cache.add_audio_export_request(export_requests[0])
         time.sleep(3)
-        export_requests.append(self.get_time_str() + "__5")
+        export_requests.append(str(int(time.time())) + "__5")
         cache.add_audio_export_request(export_requests[1])
         time.sleep(4)
-        export_requests.append(self.get_time_str() + "__5")
+        export_requests.append(str(int(time.time())) + "__5")
         cache.add_audio_export_request(export_requests[2])
         
         # waiting for recording cycle to finish + stop data collection
-        time.sleep(20)
-        data_generator.stop_data_collection()
+        time.sleep(config_manager.config_data["audio_continuous_recording_len"] + 5)
+        cache.stop_data_collection()
         data_generator.join_audio_export_handler()
 
         # collecting all sound files in the data folder
@@ -63,9 +62,10 @@ class TestAudioDataGenerator(unittest.TestCase):
         for request in export_requests:
             if not request in wav_files:
                 all_exports_present = False
+            else : 
+                os.remove(os.path.join(self.data_dir, request + ".wav"))
 
         assert all_exports_present
-
 
 
 if __name__ == "__main__":
