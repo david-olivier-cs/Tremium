@@ -1,6 +1,6 @@
 '''
 This script is the entry point to launch the Node maintenance routine.
-Should be scheduled to launch regularly (every hour by cron job)
+It should be scheduled to launch regularly (every hour by cron job)
 The maintenance routine enables the node to :
     - pull available updates from the hub
     - transfer acquisition data to the hub

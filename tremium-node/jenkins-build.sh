@@ -9,7 +9,7 @@
 # defining the build directory name
 build_folder="tremium-node-build"
 
-# creating the build directory and copying copying dependencies
+# creating the build directory and copying dependencies
 rm -fr $build_folder && mkdir $build_folder
 cp ./Dockerfile ./$build_folder/
 cp ./requirements.txt ./$build_folder/
@@ -17,6 +17,7 @@ cp ./launch-node-services.sh ./$build_folder/
 cp -r ../tremium-py/ ./$build_folder/
 cp ./config/node-config.json ./$build_folder/
 cp ./maintenance/maintenance.py ./$build_folder/
+cp ./audio/audio.py ./$build_folder/
 
 # moving into the build folder
 cd $build_folder

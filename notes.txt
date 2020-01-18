@@ -90,4 +90,4 @@ Audio export request format
     --> (timestamp str)__(label)
         - the request is a string
         - (timestamp) : the target event start time (int(timestamp))
-        - (label) : the classification label of the event
+        - (label) : the classification label of the events

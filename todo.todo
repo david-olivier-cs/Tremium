@@ -42,4 +42,5 @@ General integration tasks :
 - [x] Test the audio export handler
 - [x] Implement recording mechanism for event recognition
 - [x] Test recording mechanism for event recognition
+- [x] Implement entry point for audio recording and processing
 - [] Test audio recording from docker container
