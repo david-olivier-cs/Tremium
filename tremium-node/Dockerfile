@@ -1,6 +1,5 @@
 # Use an official Python runtime as a parent image
 FROM python:3.6.8
-FROM python:3.6.8-alpine
 
 # set working directory + copy necessary sources and folders
 WORKDIR /tremium-node
