@@ -34,3 +34,4 @@ PyBluez==0.22
 PyAudio==0.2.11
 redis==3.3.8
 Wave==0.0.2
+scikit-learn

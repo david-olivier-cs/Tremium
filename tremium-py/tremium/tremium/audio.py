@@ -1,4 +1,5 @@
 import os
+
 import os.path
 
 import wave
@@ -246,7 +247,9 @@ class AudioDataGenerator():
                 
                     # process the latest recording window (testing)
                     if random.random() < 0.25:
+                        
                         logging.info("Event occured")
+
                         # generating an event export request (test)
                         export_request = str(int(time.time())) + "__5"
                         self.cache.add_audio_export_request(export_request)
