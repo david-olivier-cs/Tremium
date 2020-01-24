@@ -22,7 +22,6 @@ mock==3.0.5
 protobuf==3.10.0
 pyasn1==0.4.7
 pyasn1-modules==0.2.7
-pylint==2.4.2
 pytz==2019.3
 requests==2.22.0
 rsa==4.0
@@ -32,4 +31,7 @@ urllib3==1.25.6
 websocket-client==0.56.0
 wrapt==1.11.2
 PyBluez==0.22
+PyAudio==0.2.11
 redis==3.3.8
+Wave==0.0.2
+scikit-learn

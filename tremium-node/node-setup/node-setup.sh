@@ -37,7 +37,8 @@ chmod 777 $HOME/update-node.sh
 
 # installing os dependencies
 apt-get update
-apt-get -y install cron redis-server
+apt-get -y install cron 
+apt-get -y install redis-server libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 apt-get -y install usbutils bluez bluetooth libbluetooth-dev
 
 # making necessary changes to the bluetooth interface

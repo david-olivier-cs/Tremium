@@ -1,5 +1,7 @@
 General integration tasks : 
 - [x] Allow host bluetooth interface to be used from inside docker container
+- [] Mark required modules for Tremium in the required module list
+- [] Keep the requirements.txt files to a minimum (hub/node)
 
 # Hub tasks :
 - [x] Mount host folders used for storage by Hub
@@ -27,10 +29,24 @@ General integration tasks :
 - [x] Live integration test between node and hub containers
 - [x] Finish node launch script (runs on device start up)
 - [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
+- [x] Add audio file exports to the maintenance script
 
 # Documentation tasks
-- [] Create wiki for the project
-- [] Create main readme.md file for the project
+- [x] Create main readme.md file for the project
+- [x] Create wiki for the project
+- [x] Detail Hub architecture in wiki
+- [] Detail Node architecture in wiki
+- [] Detail solution hardware in wiki
 
-# Sound analysis tasks
-- [] Integrate TrapBot code into the project code base
+# Audio extraction tasks
+- [x] Implement the audio export handler
+- [x] Test the audio export handler
+- [x] Implement recording mechanism for event recognition
+- [x] Test recording mechanism for event recognition
+- [x] Implement entry point for audio recording and processing
+- [x] Test audio recording from docker container
+- [x] Prevent entrypoint script from blocking (because of audio)
+
+# Event recognition tasks
+- [] Implement generic event extractor
+- [] Implement audio processing pipeline
