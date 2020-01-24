@@ -9,6 +9,9 @@
 # defining the build directory name
 build_folder="tremium-node-build"
 
+# logging in to google docker registry
+cat ./config/TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
+
 # creating the build directory and copying dependencies
 rm -fr $build_folder && mkdir $build_folder
 cp ./Dockerfile ./$build_folder/
@@ -21,9 +24,6 @@ cp ./audio/audio.py ./$build_folder/
 
 # moving into the build folder
 cd $build_folder
-
-# logging in to google docker registry
-cat TremiumDevEditor.json | docker login -u _json_key --password-stdin https://gcr.io
 
 # launching the docker image build
 docker build . -t gcr.io/tremium/dev_node_testing_01_acquisition-component:latest
