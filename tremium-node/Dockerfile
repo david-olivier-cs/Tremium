@@ -8,6 +8,7 @@ COPY ./* /tremium-node/
 # installing os dependencies
 RUN apt-get update
 RUN apt-get -y install usbutils bluez bluetooth libbluetooth-dev python-dev
+RUN apt-get install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 
 # installing python packages
 RUN pip install -r ./requirements.txt

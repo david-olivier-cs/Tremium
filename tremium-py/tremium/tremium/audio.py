@@ -124,7 +124,7 @@ class AudioDataGenerator():
                 # filling up the frame container with audio data                  
                 n_chunks = int((self.fs / self.audio_chunk_size) * self.continuous_recording_len)
                 for _ in range(n_chunks):
-                    data = audio_stream.read(self.audio_chunk_size)
+                    data = audio_stream.read(self.audio_chunk_size, exception_on_overflow = False)
                     audio_frames.append(data)
 
                 # collecting all audio export request, which occured before / during recording
@@ -234,7 +234,7 @@ class AudioDataGenerator():
 
                 # getting the latest recording segment
                 for _ in range(n_segment_chunks):
-                    recording_data.append(audio_stream.read(self.audio_chunk_size))
+                    recording_data.append(audio_stream.read(self.audio_chunk_size, exception_on_overflow = False))
 
                 # once the recording window is ready for sliding
                 n_remaining_chunks = n_max_chunks - len(recording_data)
