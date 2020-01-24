@@ -21,6 +21,7 @@ launch_command="sudo docker run --privileged \
     -v $home_dir/tremium-mounted-volumes/image-archives-node:/tremium-node/image-archives-node \
     -v $home_dir/tremium-mounted-volumes/file-transfer-node:/tremium-node/file-transfer-node \
     -v /var/run/sdp:/var/run/sdp \
+    --device /dev/snd:/dev/snd \
     --net=host $node_image_id"
 
 # launching mechanism

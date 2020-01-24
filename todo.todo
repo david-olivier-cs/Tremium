@@ -29,6 +29,7 @@ General integration tasks :
 - [x] Live integration test between node and hub containers
 - [x] Finish node launch script (runs on device start up)
 - [x] Create the node setup script (has to pull image.tar.gz and place it in the archives folder)
+- [] Add audio file exports to the maintenance script
 
 # Documentation tasks
 - [x] Create main readme.md file for the project
@@ -43,4 +44,7 @@ General integration tasks :
 - [x] Implement recording mechanism for event recognition
 - [x] Test recording mechanism for event recognition
 - [x] Implement entry point for audio recording and processing
-- [] Test audio recording from docker container
+- [x] Test audio recording from docker container
+- [] Prevent entrypoint script from blocking (because of audio)
+
+# Event recognition tasks
