@@ -66,3 +66,8 @@ Audio export request format
         - the request is a string
         - (timestamp) : the target event start time (int(timestamp))
         - (label) : the classification label of the events
+
+
+Generic event extractor : 
+
+    

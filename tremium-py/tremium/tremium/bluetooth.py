@@ -253,7 +253,7 @@ class NodeBluetoothClient():
                 time_str = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S')
                 archive_file_name = archived_data_pattern_segs[0] + "-{}".format(time_str) + "." + archived_data_pattern_segs[1]
                 archive_file_path = os.path.join(transfer_dir, archive_file_name)
-                os.rename(data_file_path, archive_file_path)            
+                os.rename(data_file_path, archive_file_path)
 
                 # creating new main data file
                 open(data_file_path, "w").close()
@@ -261,16 +261,21 @@ class NodeBluetoothClient():
                 # unlocking the data file
                 self.cache.unlock_data_file()
 
-        # collecting all (archived / ready for transfer) data files + log files
+        # collecting all (archived / ready for transfer) data files, log files and audio files
         for element in os.listdir(transfer_dir):
             element_path = os.path.join(transfer_dir, element)
             if os.path.isfile(element_path):
 
+                # handling log files and data files
                 is_log_file = element.endswith(".log")
                 is_archived_data = re.search(archived_data_pattern_segs[0], element) is not None
                 is_full = os.stat(element_path).st_size > data_file_max_size
                 if (is_log_file or is_archived_data) and is_full:
                     transfer_files.append((element, element_path))
+
+                # handling audio files
+                if element.endswith(".wav"):
+                    transfer_files.append((element, element_path))                 
 
         try :
             # uploading transfer files to the Hub and deleting them from local storage
