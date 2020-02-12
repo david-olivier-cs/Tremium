@@ -5,7 +5,7 @@ import time
 import datetime
 
 import unittest
-from tremium.audio import AudioDataGenerator
+from tremium.audio import AudioEventDetector
 from tremium.cache import NodeCacheModel
 from tremium.config import NodeConfigurationManager
 
@@ -32,8 +32,8 @@ class TestAudioDataGenerator(unittest.TestCase):
         config_manager = NodeConfigurationManager(self.config_file_path)
 
         # launching the audio export handler
-        data_generator = AudioDataGenerator(self.config_file_path, auto_start=False)
-        data_generator.launch_audio_export_handler()
+        event_detector = AudioEventDetector(self.config_file_path, auto_start=False)
+        event_detector.launch_audio_export_handler()
 
         # sending some audio export requests
         export_requests = []
@@ -47,9 +47,9 @@ class TestAudioDataGenerator(unittest.TestCase):
         cache.add_audio_export_request(export_requests[2])
         
         # waiting for recording cycle to finish + stop data collection
-        time.sleep(config_manager.config_data["audio_continuous_recording_len"] + 5)
+        time.sleep(config_manager.config_data["audio-continuous-recording-len"] + 5)
         cache.stop_data_collection()
-        data_generator.join_audio_export_handler()
+        event_detector.join_audio_export_handler()
 
         # collecting all sound files in the data folder
         wav_files = []

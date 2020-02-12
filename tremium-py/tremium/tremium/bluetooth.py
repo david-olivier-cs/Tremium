@@ -230,7 +230,7 @@ class NodeBluetoothClient():
         Transfers the contents of the data-transfer folder to the hub
             1) copy the contents of the extracted data file (sensor data) to a temp file
             2) create a new extracted data file (blank) for new data extraction (sensor data)
-            3) transfer/delete all data/log files to the Tremium Hub
+            3) transfer all data/log files to the Tremium Hub
         '''
         
         transfer_files = []

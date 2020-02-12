@@ -2,7 +2,7 @@ import os
 import time
 from multiprocessing import Process
 from tremium.cache import NodeCacheModel
-from tremium.audio import AudioDataGenerator
+from tremium.audio import AudioEventDetector
 from tremium.config import NodeConfigurationManager
 
 # defining test parameters
@@ -11,7 +11,7 @@ data_dir = "file-transfer-node"
 
 # defining data generation entry point
 def generate_data(config_file_path):
-    data_generator = AudioDataGenerator(config_file_path)
+    event_detector = AudioEventDetector(config_file_path)
 
 
 if __name__ == "__main__":
@@ -26,5 +26,5 @@ if __name__ == "__main__":
     process_handle.start()
 
     # giving some time to the generator de
-    time.sleep(config_manager.config_data["audio_continuous_recording_len"] + 5)
+    time.sleep(config_manager.config_data["audio-continuous-recording-len"] + 5)
     cache.stop_data_collection()
