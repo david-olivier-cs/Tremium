@@ -36,7 +36,6 @@ class AudioEventDetector():
         ------
         config_file_path (str) : path to the hub configuration file
         auto_start (bool) : when true, audio recording/processing is launched from the constructor
-        periodic_extract (bool) :
         '''
 
         # loading configurations
@@ -54,7 +53,7 @@ class AudioEventDetector():
         self.audio_export_handler_h = None
 
         # defining the classification mode
-        self.periodic_extract = periodic_extract
+        self.periodic_extract = self.config_manager.config_data["audio-periodic-extract"]
 
         # setting up logging
         logger = logging.getLogger()
@@ -254,8 +253,10 @@ class AudioEventDetector():
                     del recording_frames[0 : n_remaining_chunks]
 
                     # classifiying the audio segment
-                    if self.periodic_extract : segment_label = audio_classifier.periodic_extract()
-                    else : segment_label = audio_classifier.predict(b''.join(recording_frames))
+                    if self.periodic_extract: 
+                        segment_label = audio_classifier.periodic_extract()
+                    else: 
+                        segment_label = audio_classifier.predict(b''.join(recording_frames))
 
                     # process the latest recording window (testing)
                     if not segment_label == no_event_label:

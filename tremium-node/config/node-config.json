@@ -21,6 +21,7 @@
     "audio-continuous-recording-len" : 60,
     "audio-event-len" : 4,
     "audio-event-segment-len" : 1,
+    "audio-periodic-extract" : true,
     "audio-model-path" : "",
     "audio-model-periodic-label" : 1,
     "audio-model-no-event-label" : 0,
