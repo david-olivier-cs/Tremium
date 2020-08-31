@@ -1,3 +1,9 @@
+#ignoring google credentials
+TremiumDevEditor.json
+
+# ignoring notebooks folder
+notebooks/
+
 # ignoring vs code files
 .vscode/
 
