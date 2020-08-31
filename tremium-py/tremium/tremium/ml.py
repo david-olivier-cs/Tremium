@@ -1,5 +1,4 @@
 import struct
-import pickle
 import librosa
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -83,8 +82,8 @@ class AudioClassifier():
         '''
         Params
         ------
-        classfier_path : str
-            path to the classfier pickle file
+        config_file_path : str
+            path to the Node configuration file
         '''
 
         # loading node configurations and classifier
