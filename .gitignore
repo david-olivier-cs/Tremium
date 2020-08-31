@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 #ignoring google credentials
 TremiumDevEditor.json
 
+=======
+>>>>>>> Implemented recording for event recognition
 # ignoring notebooks folder
 notebooks/
 

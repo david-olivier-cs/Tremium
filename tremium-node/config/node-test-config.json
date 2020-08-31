@@ -20,6 +20,7 @@
     "bluetooth-device-check-time" : 1200,
     "audio_continuous_recording_len" : 15,
     "audio_event_len" : 2,
+    "audio_event_segment_len" : 1,
     "node-redis-server-config" : {
         "host" : "localhost", 
         "port" : 6379,

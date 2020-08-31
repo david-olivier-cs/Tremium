@@ -33,8 +33,13 @@ General integration tasks :
 # Documentation tasks
 - [x] Create main readme.md file for the project
 - [x] Create wiki for the project
+- [] Detail Hub architecture in wiki
+- [] Detail Node architecture in wiki
+- [] Detail solution hardware in wiki
 
 # Audio extraction tasks
 - [x] Implement the audio export handler
 - [x] Test the audio export handler
-- [] Implement generic event extractor
+- [x] Implement recording mechanism for event recognition
+- [x] Test recording mechanism for event recognition
+- [] Test audio recording from docker container
